@@ -1,7 +1,4 @@
-#!/usr/bin/env python3
-import ivis_nn
-import ivis_nn.elasticsearch as es
-import ivis_nn.optimizer as opt
+import ivis.nn.optimizer as opt
 
 
 def run_optimizer(parameters, run_training_callback, finish_training_callback, log_callback):

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import sys
 from ivis import ivis
 # mock IVIS
 class ESMock:
@@ -13,9 +14,8 @@ class ESMock:
                 return json.load(file)
 ivis.elasticsearch = ESMock()
 
-from ivis_nn.ParamsClasses.PredictionParams import PredictionParams
+from ivis.nn import PredictionParams
 from prediction import *
-import sys
 
 
 def print_log(message):

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import json
+import sys
 from ivis import ivis
 # mock IVIS
 with open('example_entities.json') as entities_file:
     ivis.entities = json.load(entities_file)
 
 from optimizer import *
-import sys
 
 
 def run_training(training_params):

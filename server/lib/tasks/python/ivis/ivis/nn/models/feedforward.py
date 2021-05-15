@@ -7,7 +7,7 @@ def feedforward_model(training_parameters, input_shape, target_shape):
 
     Parameters
     ----------
-    training_parameters : ivis_nn.FeedforwardTrainingParams
+    training_parameters : ivis.nn.FeedforwardTrainingParams
     input_shape : tuple
     target_shape : tuple
 

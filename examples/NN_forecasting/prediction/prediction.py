@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
 import tensorflow as tf
-import ivis_nn.prediction as pred
-from ivis_nn import preprocessing
+import ivis.nn.prediction as pred
+from ivis.nn import preprocessing
 
 
 def run_prediction(prediction_parameters, model_path, log_callback):
@@ -10,7 +9,7 @@ def run_prediction(prediction_parameters, model_path, log_callback):
 
     Parameters
     ----------
-    prediction_parameters : ivis_nn.PredictionParams
+    prediction_parameters : ivis.nn.PredictionParams
         The parameters from user parsed from the JSON parameters of the IVIS Job. It should also contain the signal set,
         signals and their types.
     model_path : str

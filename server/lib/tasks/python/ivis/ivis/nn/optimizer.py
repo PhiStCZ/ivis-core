@@ -1,8 +1,9 @@
-"""Code for optimizer"""
+"""
+Code for hyperparameter optimizer.
+"""
 from ivis import ivis
-import ivis_nn
-from ivis_nn.common import interval_string_to_milliseconds, get_ts_field, get_entities_signals
-from ivis_nn import es
+from . import elasticsearch as es, TrainingParams
+from .common import interval_string_to_milliseconds, get_ts_field, get_entities_signals
 
 
 def prepare_signal_parameters(signals, entities_signals, aggregated):
@@ -47,7 +48,7 @@ def get_els_index(parameters):
     return ivis.entities["signalSets"][sig_set_cid]["index"]
 
 
-def default_training_params(parameters, training_params_class=ivis_nn.TrainingParams):
+def default_training_params(parameters, training_params_class=TrainingParams):
     training_params = training_params_class()
     aggregated = parameters["timeInterval"]["aggregation"] != ""
 

@@ -1,4 +1,4 @@
-from ivis_nn.ParamsClasses.Params import Params
+from .Params import Params
 
 
 class TrainingParams(Params):

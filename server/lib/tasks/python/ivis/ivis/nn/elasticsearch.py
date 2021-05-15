@@ -1,7 +1,9 @@
+"""
+Elasticsearch queries generation and results parsing.
+"""
 import numpy as np
 import pandas as pd
-
-from .common import *
+from .common import get_aggregated_field
 
 
 ###########
@@ -159,16 +161,9 @@ def _parse_signal_values_from_sort(docs):
     return np.array(values)
 
 
-def _get_aggregated_field(signal):
-    if "aggregation" in signal:
-        return f'{signal["field"]}_{signal["aggregation"]}'
-    else:
-        return signal["field"]
-
-
 def _parse_signal_values_from_buckets(signal, buckets):
     """Returns the values of one signal as np array (vector)"""
-    field = _get_aggregated_field(signal)
+    field = get_aggregated_field(signal)
     data_type = signal["data_type"]
 
     values = []
@@ -256,7 +251,7 @@ def parse_histogram(signals, data):
 
     for sig in signals:
         sig_values = _parse_signal_values_from_buckets(sig, buckets)
-        dataframe[_get_aggregated_field(sig)] = sig_values
+        dataframe[get_aggregated_field(sig)] = sig_values
     dataframe["ts"] = _parse_signal_values_from_buckets_key(buckets)
 
     dataframe.set_index("ts", inplace=True)

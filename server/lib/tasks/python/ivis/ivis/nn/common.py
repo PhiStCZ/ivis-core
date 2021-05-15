@@ -1,3 +1,6 @@
+"""
+Common function for the whole `nn` submodule.
+"""
 from ivis import ivis
 
 
@@ -10,6 +13,14 @@ def get_ts_field(parameters):
     entities_signals = get_entities_signals(parameters)
     cid = parameters["tsSigCid"]
     return entities_signals[cid]["field"]
+
+
+def get_aggregated_field(signal):
+    """Returns the field name for a signal, taking aggregations into account."""
+    if "aggregation" in signal:
+        return f'{signal["field"]}_{signal["aggregation"]}'
+    else:
+        return signal["field"]
 
 
 def interval_string_to_milliseconds(interval: str):

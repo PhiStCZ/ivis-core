@@ -1,4 +1,4 @@
-from ivis_nn.ParamsClasses.Params import Params
+from .Params import Params
 
 
 class PredictionParams(Params):
@@ -8,7 +8,7 @@ class PredictionParams(Params):
         """
         Parameters
         ----------
-        training_params : ivis_nn.TrainingParams
+        training_params : ivis.nn.TrainingParams
         normalization_coefficients : dict
         """
         self.architecture = None            # the architecture of neural network

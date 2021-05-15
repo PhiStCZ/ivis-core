@@ -1,9 +1,10 @@
+"""
+Preprocessing of the data before training.
+"""
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from ivis_nn.elasticsearch import _get_aggregated_field
-
-from .common import *
+from .common import get_aggregated_field
 
 
 def split_data(training_parameters, dataframe):
@@ -93,7 +94,7 @@ def compute_normalization_coefficients(training_parameters, train_df):
             mean_std(column)
 
     for signal in training_parameters.input_signals + training_parameters.target_signals:
-        column_name = _get_aggregated_field(signal)
+        column_name = get_aggregated_field(signal)
         if column_name not in normalization_coefficients:
             compute_coefficients(column_name, signal)
 
@@ -139,7 +140,7 @@ def preprocess_dataframes(normalization_coefficients, *dataframes):
 
 def get_column_names_for_signal(normalization_coefficients, signal):
     column_names = []
-    column = _get_aggregated_field(signal)
+    column = get_aggregated_field(signal)
 
     if "values" in normalization_coefficients[column]:
         for value in normalization_coefficients[column]["values"] + ["unknown"]:

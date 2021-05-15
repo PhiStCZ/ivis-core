@@ -1,11 +1,13 @@
-#!/usr/bin/env python3
+"""
+Code for running the trained models for prediction.
+"""
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 from ivis import ivis
-from ivis_nn import es
-from ivis_nn.elasticsearch import _get_aggregated_field
-from ivis_nn.preprocessing import get_column_names
+from .common import get_aggregated_field
+from . import elasticsearch as es
+from .preprocessing import get_column_names
 
 
 def load_data(prediction_parameters):
@@ -14,7 +16,7 @@ def load_data(prediction_parameters):
 
     Parameters
     ----------
-    prediction_parameters : ivis_nn.PredictionParams
+    prediction_parameters : ivis.nn.PredictionParams
 
     Returns
     -------
@@ -103,7 +105,7 @@ def _postprocess_sample(sample, signals, normalization_coefficients, column_indi
         raise ValueError(f"Unknown target signal '{column}'.")
 
     for sig in signals:
-        col = _get_aggregated_field(sig)
+        col = get_aggregated_field(sig)
         postprocess_signal(col)
 
     return dataframe
@@ -115,7 +117,7 @@ def postprocess(prediction_parameters, data):
 
     Parameters
     ----------
-    prediction_parameters : ivis_nn.PredictionParams
+    prediction_parameters : ivis.nn.PredictionParams
     data : np.ndarray
         The shape of the array is [samples, time, signals]
 

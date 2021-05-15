@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-from training import *
-from ivis_nn.ParamsClasses.TrainingParams import TrainingParams
 import json
 import sys
+from ivis.nn import TrainingParams
+from training import *
 
 # histogram query is default
 # start with argument "docs" to use docs query

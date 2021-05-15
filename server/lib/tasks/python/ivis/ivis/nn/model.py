@@ -1,3 +1,6 @@
+"""
+Functions for creating NN models.
+"""
 import tensorflow as tf
 from .ParamsClasses import FeedforwardTrainingParams
 from .models.feedforward import feedforward_model
@@ -15,7 +18,7 @@ def get_model(training_parameters, input_shape, target_shape):
 
     Parameters
     ----------
-    training_parameters : ivis_nn.TrainingParams
+    training_parameters : ivis.nn.TrainingParams
     input_shape : tuple
     target_shape : tuple
 
