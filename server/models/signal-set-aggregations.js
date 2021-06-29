@@ -39,8 +39,14 @@ async function getMaxFittingAggSet(sigSetId, maxInterval, dateFrom) {
         .where('aggregation_jobs.set', sigSetId)
         .andWhere('aggregation_jobs.interval', '<=', maxInterval)
         .andWhere(function () {
-                this.where('aggregation_jobs.offset', '<=', dateFrom)
-                    .orWhereNull('aggregation_jobs.offset')
+                // Aggregations have offset where the aggregating starts, when null whole signal set is aggregated
+                // on lte queries (dateFrom is null) only solution is to get wholly aggregated signal sets
+                if (dateFrom != null) {
+                        this.where('aggregation_jobs.offset', '<=', dateFrom)
+                            .orWhereNull('aggregation_jobs.offset');
+                    } else {
+                        this.whereNull('aggregation_jobs.offset');
+                    }
             }
         )
         .innerJoin('jobs', 'aggregation_jobs.job', 'jobs.id')
@@ -50,7 +56,6 @@ async function getMaxFittingAggSet(sigSetId, maxInterval, dateFrom) {
         .first();
     if (sigSet) {
         sigSet.settings = JSON.parse(sigSet.settings);
-
     }
     return sigSet;
 }

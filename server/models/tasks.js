@@ -13,13 +13,22 @@ const fs = require('fs-extra-promise');
 const taskHandler = require('../lib/task-handler');
 const files = require('./files');
 const dependencyHelpers = require('../lib/dependency-helpers');
-const {getWizard } = require("../lib/wizards");
+const {getWizard} = require("../lib/wizards");
 
 const allowedKeysCreate = new Set(['name', 'description', 'type', 'settings', 'namespace']);
 const allowedKeysUpdate = new Set(['name', 'description', 'settings', 'namespace']);
 
+const columns = ['tasks.id', 'tasks.name', 'tasks.description', 'tasks.type', 'tasks.created', 'tasks.build_state', 'tasks.source', 'namespaces.name'];
+
 function hash(entity) {
     return hasher.hash(filterObject(entity, allowedKeysCreate));
+}
+
+function getQueryFun(source) {
+    return builder => builder
+        .from('tasks')
+        .whereIn('tasks.source', [source])
+        .innerJoin('namespaces', 'namespaces.id', 'tasks.namespace')
 }
 
 
@@ -31,8 +40,10 @@ function hash(entity) {
  */
 async function getById(context, id) {
     return await knex.transaction(async tx => {
-        await shares.enforceEntityPermissionTx(tx, context, 'task', id, 'view');
         const task = await tx('tasks').where('id', id).first();
+        if (!task || task.source !== TaskSource.BUILTIN) {
+            await shares.enforceEntityPermissionTx(tx, context, 'task', id, 'view');
+        }
         task.settings = JSON.parse(task.settings);
         task.build_output = JSON.parse(task.build_output);
         task.permissions = await shares.getPermissionsTx(tx, context, 'task', id);
@@ -40,16 +51,21 @@ async function getById(context, id) {
     });
 }
 
+async function listDTAjaxWithoutPerms(params) {
+    return await dtHelpers.ajaxList(
+        params,
+        getQueryFun(TaskSource.BUILTIN),
+        columns
+    );
+}
+
 async function listDTAjax(context, params) {
     return await dtHelpers.ajaxListWithPermissions(
         context,
         [{entityTypeId: 'task', requiredOperations: ['view']}],
         params,
-        builder => builder
-            .from('tasks')
-            .whereIn('tasks.source', [TaskSource.USER])
-            .innerJoin('namespaces', 'namespaces.id', 'tasks.namespace'),
-        ['tasks.id', 'tasks.name', 'tasks.description', 'tasks.type', 'tasks.created', 'tasks.build_state', 'namespaces.name']
+        getQueryFun(TaskSource.USER),
+        columns
     );
 }
 
@@ -224,7 +240,7 @@ function scheduleInit(id, settings) {
  * @param id the primary key of the task
  * @returns {Promise<void>}
  */
-async function compile(context, id) {
+async function compile(context, id, forceInit = false) {
     let task;
     let uninitialized = true;
     await knex.transaction(async tx => {
@@ -235,7 +251,8 @@ async function compile(context, id) {
             throw new Error(`Task not found`);
         }
 
-        uninitialized = (task.build_state === BuildState.UNINITIALIZED);
+        // Reinitialization can be forced by argument
+        uninitialized = forceInit || (task.build_state === BuildState.UNINITIALIZED);
 
         await tx('tasks').where('id', id).update({build_state: BuildState.SCHEDULED});
     });
@@ -264,3 +281,4 @@ module.exports.remove = remove;
 module.exports.getParamsById = getParamsById;
 module.exports.compile = compile;
 module.exports.compileAll = compileAll;
+module.exports.listDTAjaxWithoutPerms = listDTAjaxWithoutPerms;

@@ -13,6 +13,7 @@ import {Link} from "react-router-dom";
 import {withComponentMixins} from "./decorator-helpers";
 import {withAsyncErrorHandler} from "./error-handling";
 import ACEEditorRaw from 'react-ace';
+import {ACEEditor, Form, withForm} from "./form";
 
 @withComponentMixins([
     withTranslation,
@@ -396,3 +397,90 @@ export class ContentModalDialog extends Component {
         );
     }
 }
+
+@withComponentMixins([
+    withTranslation,
+    withForm
+])
+export class ImportExportModalDialog extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {};
+
+        this.initForm();
+    }
+
+    static propTypes = {
+        visible: PropTypes.bool.isRequired,
+        onClose: PropTypes.func.isRequired,
+        onImport: PropTypes.func.isRequired,
+        onExport: PropTypes.func.isRequired
+    }
+
+    localValidateFormValues(state) {
+        const t = this.props.t;
+
+        state.setIn(['code', 'error'], null);
+
+        const codeStr = state.getIn(['code', 'value']);
+
+        if (!codeStr) {
+            state.setIn(['code', 'error'], t('JSON code must not be empty'));
+        } else {
+            try {
+                const code = JSON.parse(codeStr);
+            } catch (err) {
+                state.setIn(['code', 'error'], t('Syntax error in the JSON code'));
+            }
+        }
+    }
+
+    doClose() {
+        this.props.onClose();
+    }
+
+    componentDidMount() {
+        this.populateFormValues({
+            code: this.props.visible ? this.props.onExport() : ''
+        });
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (!prevProps.visible && this.props.visible) {
+            const code = this.props.onExport();
+            this.updateFormValue('code', code);
+        }
+        else if (prevProps.visible && !this.props.visible) {
+            this.updateFormValue('code', '');
+        }
+    }
+
+    doImport() {
+        if (this.isFormWithoutErrors()) {
+            const code = JSON.parse(this.getFormValue('code'));
+
+            this.props.onImport(code);
+
+        } else {
+            this.showFormValidation();
+        }
+    }
+
+    render() {
+        const t = this.props.t;
+
+        return (
+            <ModalDialog hidden={!this.props.visible} title={t('Import panel settings')}
+                         onCloseAsync={async () => this.doClose()} buttons={[
+                {label: t('Close'), className: 'btn-primary', onClickAsync: async () => this.doClose()},
+                {label: t('Import'), className: 'btn-danger', onClickAsync: async () => this.doImport()}
+            ]}>
+                <Form stateOwner={this}>
+                    <ACEEditor id="code" mode="json" format="wide"/>
+                </Form>
+            </ModalDialog>
+        );
+    }
+}
+

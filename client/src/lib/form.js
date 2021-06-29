@@ -1519,7 +1519,8 @@ class ACEEditor extends Component {
         help: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
         height: PropTypes.string,
         mode: PropTypes.string,
-        format: PropTypes.string
+        format: PropTypes.string,
+        readOnly: PropTypes.bool
     }
 
     render() {
@@ -1540,6 +1541,7 @@ class ACEEditor extends Component {
                 showPrintMargin={false}
                 value={owner.getFormValue(id)}
                 tabSize={2}
+                readOnly={props.readOnly}
                 setOptions={{useWorker: false}} // This disables syntax check because it does not always work well (e.g. in case of JS code in report templates)
             />
         );

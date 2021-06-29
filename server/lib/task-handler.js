@@ -13,7 +13,12 @@ const simpleGit = require('simple-git');
 
 const knex = require('./knex');
 const {RunStatus, HandlerMsgType} = require('../../shared/jobs');
-const {BuildState, getTransitionStates, PYTHON_JOB_FILE_NAME} = require('../../shared/tasks');
+const {
+    BuildState,
+    getTransitionStates,
+    PYTHON_BUILTIN_CODE_FILE_NAME,
+    PYTHON_JOB_FILE_NAME
+} = require('../../shared/tasks');
 const {storeBuiltinTasks, list} = require('../models/builtin-tasks');
 
 const {emitter: esEmitter, EventTypes: EsEventTypes} = require('./elasticsearch-events');
@@ -138,7 +143,7 @@ function onFilesUpload(type, subtype, entityId, files) {
                     const dir = getFilesDir(type, subtype, entityId);
                     const fileNames = [];
                     for (const file of files) {
-                        if (file != PYTHON_JOB_FILE_NAME) {
+                        if (file != PYTHON_BUILTIN_CODE_FILE_NAME) {
                             const destPath = path.join(filesDir, file.originalName);
                             await fs.copyAsync(path.join(dir, file.name), destPath, {});
                             fileNames.push(file.originalName);
@@ -261,9 +266,9 @@ async function initBuiltin() {
         if (hasFiles) {
             const files = await fs.readdirAsync(filesPath);
             for (const file of files) {
-                console.log(task.id);
-                console.log(path.join(getTaskBuildOutputDir(task.id), file));
-                await fs.copyAsync(path.join(filesPath, file), path.join(getTaskBuildOutputDir(task.id), file), {overwrite: true});
+                if (file != PYTHON_JOB_FILE_NAME) {
+                    await fs.copyAsync(path.join(filesPath, file), path.join(getTaskBuildOutputDir(task.id), file), {overwrite: true});
+                }
             }
         }
     }

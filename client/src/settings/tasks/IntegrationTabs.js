@@ -16,7 +16,7 @@ import moment from "moment";
 import {withComponentMixins} from "../../lib/decorator-helpers";
 import {withTranslation} from "../../lib/i18n";
 
-const Span = props=> <span>{props.data}</span>
+const Span = props => <span>{props.data}</span>
 
 @withComponentMixins([
     withTranslation,
@@ -33,7 +33,8 @@ export default class IntegrationTabs extends Component {
         onJobChange: PropTypes.func,
         runOutputChunks: PropTypes.array,
         lastOutputChunkId: PropTypes.number,
-        runStatus: PropTypes.number
+        runStatus: PropTypes.number,
+        showOnlyBuild: PropTypes.bool
     };
 
     constructor(props) {
@@ -74,7 +75,7 @@ export default class IntegrationTabs extends Component {
             task: task
         });
 
-    if (task.build_state == null
+        if (task.build_state == null
             || task.build_state === BuildState.SCHEDULED
             || task.build_state === BuildState.PROCESSING) {
             this.refreshTimeout = setTimeout(() => {
@@ -310,20 +311,26 @@ export default class IntegrationTabs extends Component {
 
         runContent = this.getRunContent(t);
 
-        const tabs = [
-            {
-                id: 'run',
-                default: true,
-                label: t('Run'),
-                getContent: () => runContent
-            },
+        const tabs = [];
+        if (!this.props.showOnlyBuild) {
+            tabs.push(
+                {
+                    id: 'run',
+                    default: true,
+                    label: t('Run'),
+                    getContent: () => runContent
+                }
+            );
+        }
+
+        tabs.push(
             {
                 id: 'build',
+                default: this.props.showOnlyBuild,
                 label: t('Build'),
                 getContent: () => buildContent
             }
-        ];
-
+        );
         let activeTabContent;
         const developTabs = [];
         for (const tabSpec of tabs) {

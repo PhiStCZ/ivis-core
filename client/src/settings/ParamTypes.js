@@ -412,7 +412,7 @@ export default class ParamTypes {
                 if (spec.children) {
                     if (card.max === 1) {
                         if (card.min === 1) {
-                            // If cardinality is 1, initilize the children
+                            // If cardinality is 1, initialize the children
                             const childPrefix = getFieldsetPrefix(prefix, spec);
                             for (const childSpec of spec.children) {
                                 this.getSanitizedParamType(childSpec.type).adopt(childPrefix, childSpec, state);

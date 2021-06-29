@@ -13,7 +13,7 @@ import developStyles from "./Develop.scss";
 import {ActionLink} from "../../lib/bootstrap-components";
 import IntegrationTabs from "./IntegrationTabs";
 import Files from "../../lib/files";
-import {TaskType} from "../../../../shared/tasks";
+import {TaskType, TaskSource} from "../../../../shared/tasks";
 import {withComponentMixins} from "../../lib/decorator-helpers";
 import {withTranslation} from "../../lib/i18n";
 import axios from "../../lib/axios";
@@ -140,7 +140,7 @@ export default class Develop extends Component {
                 }
 
                 this.setState({
-                    chunkCounter:counter
+                    chunkCounter: counter
                 });
             }
         });
@@ -219,6 +219,8 @@ export default class Develop extends Component {
 
     getTypeSpec(type) {
         const t = this.props.t;
+        const isReadOnly = this.props.entity.source === TaskSource.BUILTIN;
+
         let spec = this.taskTypes[type];
         if (spec !== undefined) {
             return spec;
@@ -231,27 +233,7 @@ export default class Develop extends Component {
 
         spec = {
             changedKeys: new Set(['code', 'files', 'params']),
-            tabs: [
-                {
-                    id: 'code',
-                    default: true,
-                    label: t('Code'),
-                    getContent: () => <ACEEditor height={this.state.editorHeight + 'px'} id="code" mode={editorMode}
-                                                 format="wide"/>
-                },
-                {
-                    id: 'files',
-                    label: t('Files'),
-                    getContent: () => <Files entity={this.props.entity} entityTypeId="task" entitySubTypeId="file"
-                                             managePermission="manageFiles"/>
-                },
-                {
-                    id: 'params',
-                    label: t('Parameters'),
-                    getContent: () => <ACEEditor height={this.state.editorHeight + 'px'} id="params" mode="json"
-                                                 format="wide"/>
-                }
-            ],
+
             dataIn: data => {
                 data.code = data.settings.code;
                 data.params = JSON.stringify(data.settings.params, null, '  ');
@@ -277,6 +259,37 @@ export default class Develop extends Component {
                 }
             }
         };
+
+        const tabs = []
+        tabs.push(
+            {
+                id: 'code',
+                default: true,
+                label: t('Code'),
+                getContent: () => <ACEEditor height={this.state.editorHeight + 'px'} id="code" mode={editorMode}
+                                             format="wide" readOnly={isReadOnly}/>
+            });
+        if (!isReadOnly) {
+            tabs.push(
+                {
+                    id: 'files',
+                    label: t('Files'),
+                    getContent: () => <Files entity={this.props.entity} entityTypeId="task" entitySubTypeId="file"
+                                             managePermission="manageFiles"/>
+                }
+            )
+        }
+
+        tabs.push(
+            {
+                id: 'params',
+                label: t('Parameters'),
+                getContent: () => <ACEEditor height={this.state.editorHeight + 'px'} id="params" mode="json"
+                                             format="wide" readOnly={isReadOnly}/>
+            }
+        );
+
+        spec.tabs = tabs;
         this.taskTypes[type] = spec;
         return spec;
     }
@@ -401,6 +414,7 @@ export default class Develop extends Component {
     render() {
         const t = this.props.t;
         const runStatus = this.state.runStatus;
+        const isReadOnly = this.props.entity.source === TaskSource.BUILTIN;
 
         const statusMessageText = this.getFormStatusMessageText();
         const statusMessageSeverity = this.getFormStatusMessageSeverity();
@@ -463,10 +477,12 @@ export default class Develop extends Component {
                                 <div id="headerPane" className={developStyles.tabPaneHeader}>
                                     <div className={developStyles.buttons}>
 
+                                        {!isReadOnly &&
                                         <Button type="submit" className="btn-primary"
                                                 label={this.saveLabels[this.state.saveState]}/>
-                                        {!showStopBtn && saveAndRunBtn}
-                                        {showStopBtn &&
+                                        }
+                                        {!isReadOnly && !showStopBtn && saveAndRunBtn}
+                                        {!isReadOnly && showStopBtn &&
                                         <Button className="btn-primary"
                                                 label={t('Stop')}
                                                 onClickAsync={() => this.stop()}/>
@@ -509,7 +525,9 @@ export default class Develop extends Component {
                         <IntegrationTabs onJobChange={this.changeJob} taskId={this.props.entity.id}
                                          taskHash={this.state.taskVersionId} runStatus={this.state.runStatus}
                                          lastOutputChunkId={this.state.chunkCounter}
-                                         runOutputChunks={this.runOutputChunks}/>
+                                         runOutputChunks={this.runOutputChunks}
+                                         showOnlyBuild={isReadOnly}
+                        />
 
                     </div>
                 </div>

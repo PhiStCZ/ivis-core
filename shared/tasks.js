@@ -14,6 +14,7 @@ const PythonSubtypes = {
 
 // File name of every build output
 const PYTHON_JOB_FILE_NAME = 'job.py';
+const PYTHON_BUILTIN_CODE_FILE_NAME = 'code.py';
 
 const subtypesByType = {
     [TaskType.PYTHON]: PythonSubtypes
@@ -31,7 +32,8 @@ const BuildState = {
 
 const TaskSource = {
     USER: 'user',
-    BUILTIN: 'builtin'
+    BUILTIN: 'builtin',
+    SYSTEM: 'system'
 };
 
 function getFinalStates() {
@@ -66,5 +68,6 @@ module.exports = {
     getTransitionStates,
     isTransitionState,
     PYTHON_JOB_FILE_NAME,
+    PYTHON_BUILTIN_CODE_FILE_NAME,
     WizardType
 };

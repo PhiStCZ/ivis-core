@@ -2,7 +2,7 @@
 
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {LinkButton, requiresAuthenticatedUser, withPageHelpers} from "../../lib/page";
+import {LinkButton, requiresAuthenticatedUser, Toolbar, withPageHelpers} from "../../lib/page";
 import {
     Button,
     ButtonRow,
@@ -22,7 +22,7 @@ import "brace/mode/jsx";
 import "brace/mode/scss";
 import {withAsyncErrorHandler, withErrorHandling} from "../../lib/error-handling";
 import {NamespaceSelect, validateNamespace} from "../../lib/namespace";
-import {DeleteModalDialog} from "../../lib/modals";
+import {DeleteModalDialog, ImportExportModalDialog} from "../../lib/modals";
 import {Panel} from "../../lib/panel";
 import ivisConfig from "ivisConfig";
 import {getJobStates} from './states';
@@ -38,6 +38,7 @@ import {TaskSource} from "../../../../shared/tasks"
 import {
     fetchBuiltinTasks
 } from "../../lib/builtin-tasks";
+import styles from "../../lib/styles.scss";
 
 @withComponentMixins([
     withTranslation,
@@ -51,7 +52,8 @@ export default class CUD extends Component {
         super(props);
 
         this.state = {
-            builtinTasks: null
+            builtinTasks: null,
+            importExportModalShown: false
         };
 
         this.initForm({
@@ -118,6 +120,11 @@ export default class CUD extends Component {
 
                 if (builtinTask) {
                     state.formState = state.formState.setIn(['data', 'taskParams', 'value'], builtinTask.settings.params);
+                    state.formState = state.formState.withMutations(mutState => {
+                        mutState.update('data', stateData => stateData.withMutations(mutStateData => {
+                            this.paramTypes.adopt(builtinTask.settings.params, mutStateData);
+                        }))
+                    })
                 } else {
                     const defaultTask = this.getDefaultBuiltinTask();
                     state.formState = state.formState.setIn(['data', 'task', 'value'], defaultTask.id);
@@ -348,6 +355,23 @@ export default class CUD extends Component {
 
         return (
             <Panel title={isEdit ? t('Job Settings') : t('Create Job')}>
+                <ImportExportModalDialog
+                    visible={this.state.importExportModalShown}
+                    onClose={() => {
+                        this.setState({importExportModalShown: false});
+                    }}
+                    onExport={() => {
+                        const data = this.getFormValues();
+                        const params = this.paramTypes.getParams(configSpec, data);
+                        return JSON.stringify(params, null, 2);
+                    }}
+                    onImport={code => {
+                        const data = {};
+                        this.paramTypes.setFields(configSpec, code, data);
+                        this.populateFormValues(data);
+                        this.setState({importExportModalShown: false});
+                    }}
+                />
                 {canDelete &&
                 <DeleteModalDialog
                     stateOwner={this}
@@ -408,7 +432,15 @@ export default class CUD extends Component {
 
                     {configSpec ?
                         params &&
-                        <Fieldset label={t('Task parameters')}>
+                        <Fieldset label={
+                            <div>
+                                <Toolbar className={styles.fieldsetToolbar}>
+                                    <Button className="btn-primary" label={t('Import / Export')}
+                                            onClickAsync={async () => this.setState({importExportModalShown: true})}/>
+                                </Toolbar>
+                                <span>{t('Task parameters')}</span>
+                            </div>
+                        }>
                             {params}
                         </Fieldset>
                         :
