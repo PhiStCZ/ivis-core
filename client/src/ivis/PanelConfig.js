@@ -729,13 +729,20 @@ export const panelConfigMixin = createComponentMixin({
                     weight: 13
                 };
 
+                const panelId = this.props.panel.id;
+                const workspaceId = this.props.panel.workspace;
+
+                menuUpdates['fullscreen'] = {
+                    label: t('Fullscreen'),
+                    action: () => this.navigateTo(`/workspaces/${workspaceId}/${panelId}/fullscreen`),
+                    weight: 14
+                };
+
                 if (savePermitted) {
-                    const panelId = this.props.panel.id;
-                    const workspaceId = this.props.panel.workspace;
                     menuUpdates['settings'] = {
                         label: t('Edit settings'),
                         action: () => this.navigateTo(`/settings/workspaces/${workspaceId}/panels/${panelId}/edit`),
-                        weight: 14
+                        weight: 15
                     };
                 }
 

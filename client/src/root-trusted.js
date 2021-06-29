@@ -83,6 +83,24 @@ emCommonDefaults.setDefaults(em);
 
 const getStructure = t => {
 
+    let panelStructureSpec = {
+        title: resolved => resolved.panel.name,
+        link: params => `/workspaces/${params.workspaceId}/${params.panelId}`,
+        resolve: {
+            panel: params => `rest/panels/${params.panelId}`
+        },
+        structure: (resolved, params) => {
+            if (resolved.panel.template) {
+                return {
+                    panelRender: props => <WorkspacePanel panel={resolved.panel}/>
+                }
+            } else {
+                const panelStructure = em.get('client.builtinTemplates.routes.' + resolved.panel.builtin_template);
+                return panelStructure(resolved.panel, t, `/workspaces/${params.workspaceId}/${params.panelId}`);
+            }
+        }
+    };
+
     const structure = {
         title: t('Home'),
         link: () => ivisConfig.isAuthenticated ? '/workspaces' : '/login',
@@ -150,19 +168,12 @@ const getStructure = t => {
                         panelRender: props => <WorkspacesPanelsOverview workspace={props.resolved.workspace}/>,
                         children: {
                             ':panelId([0-9]+)': {
-                                title: resolved => resolved.panel.name,
-                                link: params => `/workspaces/${params.workspaceId}/${params.panelId}`,
-                                resolve: {
-                                    panel: params => `rest/panels/${params.panelId}`
-                                },
-                                structure: (resolved, params) => {
-                                    if (resolved.panel.template) {
-                                        return {
-                                            panelRender: props => <WorkspacePanel panel={resolved.panel}/>
-                                        }
-                                    } else {
-                                        const panelStructure = em.get('client.builtinTemplates.routes.' + resolved.panel.builtin_template);
-                                        return panelStructure(resolved.panel, t, `/workspaces/${params.workspaceId}/${params.panelId}`);
+                                ...panelStructureSpec,
+                                children: {
+                                    'fullscreen': {
+                                        ...panelStructureSpec,
+                                        panelInFullScreen: true,
+                                        link: params => `/workspaces/${params.workspaceId}/${params.panelId}/fullscreen`,
                                     }
                                 }
                             }
