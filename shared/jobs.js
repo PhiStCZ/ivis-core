@@ -17,9 +17,7 @@ const RunStatus = {
     INITIALIZATION: 4
 };
 
-if (Object.freeze) {
-    Object.freeze(RunStatus)
-}
+Object.freeze(RunStatus)
 
 const HandlerMsgType = {
     BUILD: 0,
@@ -31,18 +29,14 @@ const HandlerMsgType = {
     CREATE: 6,
     INIT: 7
 };
-if (Object.freeze) {
-    Object.freeze(HandlerMsgType)
-}
+Object.freeze(HandlerMsgType)
 
 const JobMsgType = {
     STORE_STATE: 'store_state',
     CREATE_SIGNALS: 'create_signals'
 };
 
-if (Object.freeze) {
-    Object.freeze(JobMsgType)
-}
+Object.freeze(JobMsgType)
 
 module.exports = {
     JobState,

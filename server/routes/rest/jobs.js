@@ -35,6 +35,10 @@ router.postAsync('/jobs-table', passport.loggedIn, async (req, res) => {
     return res.json(await jobs.listDTAjax(req.context, req.body));
 });
 
+router.postAsync('/system-jobs-table', passport.loggedIn, async (req, res) => {
+    return res.json(await jobs.listSystemDTAjax(req.context, req.body));
+});
+
 router.postAsync('/jobs-by-task-table/:taskId', passport.loggedIn, async (req, res) => {
     return res.json(await jobs.listByTaskDTAjax(req.context, castToInteger(req.params.taskId), req.body));
 });

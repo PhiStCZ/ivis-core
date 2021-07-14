@@ -20,6 +20,9 @@ const {
     PYTHON_JOB_FILE_NAME
 } = require('../../shared/tasks');
 const {storeBuiltinTasks, list} = require('../models/builtin-tasks');
+const {storeSystemJobs, list: listSystemJobs} = require('../models/system-jobs');
+const users = require('../models/users');
+const contextHelpers = require('../lib/context-helpers');
 
 const {emitter: esEmitter, EventTypes: EsEventTypes} = require('./elasticsearch-events');
 const {emitter: taskEmitter} = require('./task-events');
@@ -79,7 +82,7 @@ async function init() {
     }
 
     try {
-        await initBuiltin();
+        await initBuiltinAndSystemTasks();
     } catch (err) {
         log.error(LOG_ID, err);
     }
@@ -254,9 +257,17 @@ async function initIndices() {
 
 }
 
-async function initBuiltin() {
-    await storeBuiltinTasks();
+async function initBuiltinAndSystemTasks() {
+    await initBuiltinTasks();
+    await storeSystemJobs();
+}
 
+/**
+ * Initialize system and builtin tasks
+ * @returns {Promise<void>}
+ */
+async function initBuiltinTasks(){
+    await storeBuiltinTasks();
     // Copy the builtin-files to dist folder
     const builtinTaskFilesDir = path.join(__dirname, '..', 'builtin-files');
     const builtinTasks = await list();
@@ -314,6 +325,28 @@ async function cleanBuilds() {
     }
 }
 
+
+async function getJobRestrictedAccessToken(jobId) {
+    let token = null;
+    try {
+
+        const job = await knex('jobs').where('jobs.id', jobId).first();
+        if (job.owner) {
+            //const accessToken = getAccessToken(job.owner);
+            // User may have not generated access token
+            //if (accessToken) {
+            token = users.getRestrictedAccessToken(contextHelpers.getAdminContext(), 'job', {jobId}, job.owner);
+            //} else {
+            //    log.info(`jog ${jobId} has owner with no access token generated`)
+            //}
+        }
+    } catch (e) {
+        log.error(e);
+    }
+
+    return token
+}
+
 async function reindexOccurred(cid) {
     const spec = {};
     spec.cid = cid;
@@ -355,6 +388,7 @@ async function scheduleRun(jobId, taskDir, runId) {
     const spec = {};
     spec.jobId = jobId;
     spec.taskDir = taskDir;
+    spec.accessToken = await getJobRestrictedAccessToken(jobId);
 
     if (runId) {
         spec.runId = runId

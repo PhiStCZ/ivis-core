@@ -139,7 +139,8 @@ class Form extends Component {
                         </fieldset>
                         {!props.noStatus && statusMessageText &&
                         <AlignedRow format={props.format} htmlId="form-status-message">
-                            <div className={`alert alert-${statusMessageSeverity} ${styles.formStatus}`} role="alert">{statusMessageText}</div>
+                            <div className={`alert alert-${statusMessageSeverity} ${styles.formStatus}`}
+                                 role="alert">{statusMessageText}</div>
                         </AlignedRow>
                         }
                     </FormStateOwnerContext.Provider>
@@ -181,7 +182,8 @@ class Fieldset extends Component {
         if (id) {
             const validationMsg = id && owner.getFormValidationMessage(id);
             if (validationMsg) {
-                validationBlock = <small className="form-text text-muted" id={htmlId + '_help_validation'}>{validationMsg}</small>;
+                validationBlock =
+                    <small className="form-text text-muted" id={htmlId + '_help_validation'}>{validationMsg}</small>;
             }
         }
 
@@ -444,7 +446,8 @@ class CheckBox extends Component {
         label: PropTypes.string,
         help: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
         format: PropTypes.string,
-        className: PropTypes.string
+        className: PropTypes.string,
+        disabled: PropTypes.bool
     }
 
     render() {
@@ -460,11 +463,14 @@ class CheckBox extends Component {
 
                         return wrapInput(id, htmlId, owner, props.format, '', props.label, props.help,
                             <div className={`form-group form-check my-2 ${this.props.className}`}>
-                                <input className={inputClassName} type="checkbox"
+                                <input className={inputClassName}
+                                       type="checkbox"
                                        checked={owner.getFormValue(id)}
                                        id={htmlId}
                                        aria-describedby={htmlId + '_help'}
-                                       onChange={evt => owner.updateFormValue(id, !owner.getFormValue(id))}/>
+                                       onChange={evt => owner.updateFormValue(id, !owner.getFormValue(id))}
+                                       disabled={props.disabled}
+                                />
                                 <label className={styles.checkboxText} htmlFor={htmlId}>{props.text}</label>
                             </div>
                         );
@@ -615,7 +621,8 @@ class TextArea extends Component {
         placeholder: PropTypes.string,
         help: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
         format: PropTypes.string,
-        className: PropTypes.string
+        className: PropTypes.string,
+        disabled: PropTypes.bool
     }
 
     render() {
@@ -631,7 +638,9 @@ class TextArea extends Component {
                       value={owner.getFormValue(id) || ''}
                       className={className}
                       aria-describedby={htmlId + '_help'}
-                      onChange={this.onChange}></textarea>
+                      onChange={this.onChange}
+                      disabled={props.disabled}
+            ></textarea>
         );
     }
 }
@@ -653,12 +662,15 @@ class ColorPicker extends Component {
         id: PropTypes.string.isRequired,
         label: PropTypes.string.isRequired,
         help: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+        disabled: PropTypes.bool
     }
 
     toggle() {
-        this.setState({
-            opened: !this.state.opened
-        });
+        if (!disabled) {
+            this.setState({
+                opened: !this.state.opened
+            });
+        }
     }
 
     selected(value) {
@@ -686,9 +698,9 @@ class ColorPicker extends Component {
                 </div>
                 {this.state.opened &&
                 <>
-                    <div className={styles.overlay} onClick={::this.toggle} />
+                    <div className={styles.overlay} onClick={::this.toggle}/>
                     <div className={styles.colorPickerWrapper}>
-                        <SketchPicker color={color} onChangeComplete={::this.selected} className={styles.dialog} />
+                        <SketchPicker color={color} onChangeComplete={::this.selected} className={styles.dialog}/>
                     </div>
                 </>
                 }
@@ -1135,7 +1147,8 @@ class ListCreator extends Component {
         className: PropTypes.string,
         entryElement: PropTypes.element.isRequired,
         withOrder: PropTypes.bool,
-        initValues: PropTypes.array
+        initValues: PropTypes.array,
+        disabled: PropTypes.bool
     };
 
     constructor(props) {
@@ -1251,7 +1264,8 @@ class ListCreator extends Component {
             const elementId = this.getFormValueId(entryId);
             entries.push(
                 <div key={entryId}
-                     className={styles.listCreatorEntry + (withOrder ? ' ' + styles.withOrder : '') + ' ' + styles.entryWithButtons}>
+                     className={styles.listCreatorEntry + (withOrder ? ' ' + styles.withOrder : '') + (props.disabled ? '' : (' ' + styles.entryWithButtons))}>
+                    {!props.disabled &&
                     <div className={entryButtonsStyles}>
                         <Button
                             className="btn-secondary"
@@ -1284,6 +1298,7 @@ class ListCreator extends Component {
                         />
                         }
                     </div>
+                    }
                     <div className={styles.entryContent}>
                         {React.cloneElement(this.props.entryElement, {id: elementId})}
                     </div>
@@ -1294,6 +1309,7 @@ class ListCreator extends Component {
         return (
             <Fieldset id={id} className={props.classname} help={props.help} flat={props.flat} label={props.label}>
                 {entries}
+                {!props.disabled &&
                 <div key="newEntry" className={styles.newListCreatorEntry}>
                     <Button
                         className="btn-secondary"
@@ -1302,6 +1318,7 @@ class ListCreator extends Component {
                         onClickAsync={() => this.onAddListEntry(entryIds.length)}
                     />
                 </div>
+                }
             </Fieldset>
         );
     }
@@ -1460,7 +1477,9 @@ class TableSelect extends Component {
                         {!props.disabled &&
                         <div className="input-group-append">
                             <Button label={t('select')} className="btn-secondary" onClickAsync={::this.toggleOpen}/>
-                            {props.withClear && selection && <Button icon="times" title={t('Clear')} className="btn-secondary" onClickAsync={::this.clear}/>}
+                            {props.withClear && selection &&
+                            <Button icon="times" title={t('Clear')} className="btn-secondary"
+                                    onClickAsync={::this.clear}/>}
                         </div>
                         }
                     </div>

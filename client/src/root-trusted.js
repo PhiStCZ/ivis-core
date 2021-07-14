@@ -8,7 +8,7 @@ import emCommonDefaults from '../../shared/em-common-defaults';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { Section } from './lib/page';
+import {Section} from './lib/page';
 import Account from './account/Account';
 import Login from './login/Login';
 import Reset from './login/Forgot';
@@ -78,7 +78,7 @@ import ivisConfig from "ivisConfig";
 import {TranslationRoot} from "./lib/i18n";
 
 import {SignalSetKind} from "../../shared/signal-sets";
-import {TaskSource} from "../../shared/tasks";
+import {TaskSource, isBuiltinSource} from "../../shared/tasks";
 
 emCommonDefaults.setDefaults(em);
 
@@ -140,7 +140,7 @@ const getStructure = t => {
                             user: params => `rest/account`
                         },
                         link: '/account/edit',
-                        panelRender: props => (<Account entity={props.resolved.user} />)
+                        panelRender: props => (<Account entity={props.resolved.user}/>)
                     },
                     api: {
                         title: t('API'),
@@ -219,7 +219,7 @@ const getStructure = t => {
                         resolve: {
                             configItems: params => `rest/settings`
                         },
-                        panelRender: props => <GlobalSettings entity={props.resolved.configItems} />
+                        panelRender: props => <GlobalSettings entity={props.resolved.configItems}/>
                     },
                     workspaces: {
                         title: t('Workspaces'),
@@ -237,7 +237,9 @@ const getStructure = t => {
                                         title: t('Edit'),
                                         link: params => `/settings/workspaces/${params.workspaceId}/edit`,
                                         visible: resolved => resolved.workspace.permissions.includes('edit'),
-                                        panelRender: props => <WorkspacesCUD action={props.match.params.action} entity={props.resolved.workspace} workspacesVisible={props.resolved.workspacesVisible}/>
+                                        panelRender: props => <WorkspacesCUD action={props.match.params.action}
+                                                                             entity={props.resolved.workspace}
+                                                                             workspacesVisible={props.resolved.workspacesVisible}/>
                                     },
                                     panels: {
                                         title: t('Panels'),
@@ -258,13 +260,19 @@ const getStructure = t => {
                                                         },
                                                         link: params => `/settings/workspaces/${params.workspaceId}/panels/${params.panelId}/edit`,
                                                         visible: resolved => resolved.panel.permissions.includes('edit'),
-                                                        panelRender: props => <PanelsCUD action={props.match.params.action} entity={props.resolved.panel} workspace={props.resolved.workspace} panelsVisible={props.resolved.panelsVisible}/>
+                                                        panelRender: props => <PanelsCUD
+                                                            action={props.match.params.action}
+                                                            entity={props.resolved.panel}
+                                                            workspace={props.resolved.workspace}
+                                                            panelsVisible={props.resolved.panelsVisible}/>
                                                     },
                                                     share: {
                                                         title: t('Share'),
                                                         link: params => `/settings/workspaces/${params.workspaceId}/panels/${params.panelId}/share`,
                                                         visible: resolved => resolved.panel.permissions.includes('share'),
-                                                        panelRender: props => <Share title={t('Share')} entity={props.resolved.panel} entityTypeId="panel" />
+                                                        panelRender: props => <Share title={t('Share')}
+                                                                                     entity={props.resolved.panel}
+                                                                                     entityTypeId="panel"/>
                                                     }
                                                 }
                                             },
@@ -273,7 +281,9 @@ const getStructure = t => {
                                                 resolve: {
                                                     panelsVisible: params => `rest/panels-visible/${params.workspaceId}`
                                                 },
-                                                panelRender: props => <PanelsCUD action="create" workspace={props.resolved.workspace} panelsVisible={props.resolved.panelsVisible}/>
+                                                panelRender: props => <PanelsCUD action="create"
+                                                                                 workspace={props.resolved.workspace}
+                                                                                 panelsVisible={props.resolved.panelsVisible}/>
                                             },
 
                                         }
@@ -282,13 +292,16 @@ const getStructure = t => {
                                         title: t('Share'),
                                         link: params => `/settings/workspaces/${params.workspaceId}/share`,
                                         visible: resolved => resolved.workspace.permissions.includes('share'),
-                                        panelRender: props => <Share title={t('Share')} entity={props.resolved.workspace} entityTypeId="workspace" />
+                                        panelRender: props => <Share title={t('Share')}
+                                                                     entity={props.resolved.workspace}
+                                                                     entityTypeId="workspace"/>
                                     }
                                 }
                             },
                             create: {
                                 title: t('Create'),
-                                panelRender: props => <WorkspacesCUD action="create" workspacesVisible={props.resolved.workspacesVisible}/>
+                                panelRender: props => <WorkspacesCUD action="create"
+                                                                     workspacesVisible={props.resolved.workspacesVisible}/>
                             }
                         }
                     },
@@ -308,31 +321,34 @@ const getStructure = t => {
                                         title: t('Code'),
                                         link: params => `/settings/templates/${params.templateId}/develop`,
                                         visible: resolved => resolved.template.permissions.includes('edit'),
-                                        panelRender: props => <TemplatesDevelop entity={props.resolved.template} setPanelInFullScreen={props.setPanelInFullScreen} />
+                                        panelRender: props => <TemplatesDevelop entity={props.resolved.template}
+                                                                                setPanelInFullScreen={props.setPanelInFullScreen}/>
                                     },
                                     output: {
                                         title: t('Output'),
                                         link: params => `/settings/templates/${params.templateId}/output`,
                                         visible: resolved => resolved.template.permissions.includes('edit'),
-                                        panelRender: props => <TemplatesOutput entity={props.resolved.template} />
+                                        panelRender: props => <TemplatesOutput entity={props.resolved.template}/>
                                     },
                                     ':action(edit|delete)': {
                                         title: t('Settings'),
                                         link: params => `/settings/templates/${params.templateId}/edit`,
                                         visible: resolved => resolved.template.permissions.includes('edit'),
-                                        panelRender: props => <TemplatesCUD action={props.match.params.action} entity={props.resolved.template} />
+                                        panelRender: props => <TemplatesCUD action={props.match.params.action}
+                                                                            entity={props.resolved.template}/>
                                     },
                                     share: {
                                         title: t('Share'),
                                         link: params => `/settings/templates/${params.templateId}/share`,
                                         visible: resolved => resolved.template.permissions.includes('share'),
-                                        panelRender: props => <Share title={t('Share')} entity={props.resolved.template} entityTypeId="template" />
+                                        panelRender: props => <Share title={t('Share')} entity={props.resolved.template}
+                                                                     entityTypeId="template"/>
                                     }
                                 }
                             },
                             create: {
                                 title: t('Create'),
-                                panelRender: props => <TemplatesCUD action="create" />
+                                panelRender: props => <TemplatesCUD action="create"/>
                             }
                         }
                     },
@@ -351,32 +367,34 @@ const getStructure = t => {
                                     develop: {
                                         title: t('Code'),
                                         link: params => `/settings/tasks/${params.taskId}/develop`,
-                                        visible: resolved => resolved.task.source === TaskSource.BUILTIN || resolved.task.permissions.includes('edit'),
-                                        panelRender: props => <TasksDevelop entity={props.resolved.task} />
+                                        visible: resolved => isBuiltinSource(resolved.task.source) || resolved.task.permissions.includes('edit'),
+                                        panelRender: props => <TasksDevelop entity={props.resolved.task}/>
                                     },
                                     output: {
                                         title: t('Output'),
                                         link: params => `/settings/tasks/${params.taskId}/output`,
-                                        visible: resolved => resolved.task.source === TaskSource.BUILTIN || resolved.task.permissions.includes('edit'),
-                                        panelRender: props => <TasksOutput entity={props.resolved.task} />
+                                        visible: resolved => isBuiltinSource(resolved.task.source) || resolved.task.permissions.includes('edit'),
+                                        panelRender: props => <TasksOutput entity={props.resolved.task}/>
                                     },
                                     ':action(edit|delete)': {
                                         title: t('Settings'),
                                         link: params => `/settings/tasks/${params.taskId}/edit`,
                                         visible: resolved => resolved.task.permissions.includes('edit'),
-                                        panelRender: props => <TasksCUD action={props.match.params.action} entity={props.resolved.task} />
+                                        panelRender: props => <TasksCUD action={props.match.params.action}
+                                                                        entity={props.resolved.task}/>
                                     },
                                     share: {
                                         title: t('Share'),
                                         link: params => `/settings/tasks/${params.taskId}/share`,
                                         visible: resolved => resolved.task.permissions.includes('share'),
-                                        panelRender: props => <Share title={t('Share')} entity={props.resolved.task} entityTypeId="task" />
+                                        panelRender: props => <Share title={t('Share')} entity={props.resolved.task}
+                                                                     entityTypeId="task"/>
                                     }
                                 }
                             },
                             create: {
                                 title: t('Create'),
-                                panelRender: props => <TasksCUD action="create" />
+                                panelRender: props => <TasksCUD action="create"/>
                             }
                         }
                     },
@@ -404,28 +422,29 @@ const getStructure = t => {
                                         title: t('Settings'),
                                         link: params => `/settings/jobs/${params.jobId}/edit`,
                                         visible: resolved => resolved.job.permissions.includes('edit'),
-                                        panelRender: props => <JobsCUD action={props.match.params.action} entity={props.resolved.job} />
+                                        panelRender: props => <JobsCUD action={props.match.params.action}
+                                                                       entity={props.resolved.job}/>
                                     },
                                     'signal-sets': {
                                         title: t('Owned signal sets'),
                                         link: params => `/settings/jobs/${params.jobId}/signal-sets`,
                                         visible: resolved => resolved.job.permissions.includes('view'),
-                                        panelRender: props => <OwnedSetsList  entity={props.resolved.job} />
+                                        panelRender: props => <OwnedSetsList entity={props.resolved.job}/>
                                     },
                                     log: {
                                         title: t('Run logs'),
                                         link: params => `/settings/jobs/${params.jobId}/log`,
                                         visible: resolved => resolved.job.permissions.includes('view'),
-                                        panelRender: props => <RunLog  entity={props.resolved.job} />,
+                                        panelRender: props => <RunLog entity={props.resolved.job}/>,
                                         children: {
-                                            ':runId([0-9]*)':{
+                                            ':runId([0-9]*)': {
                                                 title: t('View log'),
                                                 resolve: {
                                                     run: params => `rest/jobs/${params.jobId}/run/${params.runId}`
                                                 },
                                                 link: params => `/settings/jobs/${params.jobId}/run/${params.runId}`,
                                                 visible: resolved => resolved.job.permissions.includes('view'),
-                                                panelRender: props => <RunOutput  entity={props.resolved.run} />
+                                                panelRender: props => <RunOutput entity={props.resolved.run}/>
                                             }
                                         }
                                     },
@@ -433,13 +452,14 @@ const getStructure = t => {
                                         title: t('Share'),
                                         link: params => `/settings/jobs/${params.jobId}/share`,
                                         visible: resolved => resolved.job.permissions.includes('share'),
-                                        panelRender: props => <Share title={t('Share')} entity={props.resolved.job} entityTypeId="job" />
+                                        panelRender: props => <Share title={t('Share')} entity={props.resolved.job}
+                                                                     entityTypeId="job"/>
                                     }
                                 }
                             },
                             create: {
                                 title: t('Create'),
-                                panelRender: props => <JobsCUD action="create" />
+                                panelRender: props => <JobsCUD action="create"/>
                             }
                         }
                     },
@@ -462,13 +482,15 @@ const getStructure = t => {
                                         title: t('Edit'),
                                         link: params => `/settings/signal-sets/${params.signalSetId}/edit`,
                                         visible: resolved => resolved.signalSet.permissions.includes('edit'),
-                                        panelRender: props => <SignalSetsCUD action={props.match.params.action} entity={props.resolved.signalSet} />
+                                        panelRender: props => <SignalSetsCUD action={props.match.params.action}
+                                                                             entity={props.resolved.signalSet}/>
                                     },
                                     'aggregations': {
                                         title: t('Aggregations'),
                                         link: params => `/settings/signal-sets/${params.signalSetId}/aggregations`,
                                         visible: resolved => resolved.signalSet.permissions.includes('view') && resolved.signalSet.kind === SignalSetKind.TIME_SERIES,
-                                        panelRender: props => <SignalSetAggregations  signalSet={props.resolved.signalSet} />,
+                                        panelRender: props => <SignalSetAggregations
+                                            signalSet={props.resolved.signalSet}/>,
                                         children: {
                                             ":jobId([0-9]+)": {
                                                 title: resolved => t('Aggregation "{{name}}"', {name: resolved.job.name}),
@@ -490,14 +512,16 @@ const getStructure = t => {
                                             },
                                             create: {
                                                 title: t('Create'),
-                                                panelRender: props => <AggregationsCUD signalSet={props.resolved.signalSet} action="create" />
+                                                panelRender: props => <AggregationsCUD
+                                                    signalSet={props.resolved.signalSet} action="create"/>
                                             }
                                         }
                                     },
                                     ':action(signals|reindex)': {
                                         title: t('Signals'),
                                         link: params => `/settings/signal-sets/${params.signalSetId}/signals`,
-                                        panelRender: props => <SignalsList action={props.match.params.action} signalSet={props.resolved.signalSet}/>,
+                                        panelRender: props => <SignalsList action={props.match.params.action}
+                                                                           signalSet={props.resolved.signalSet}/>,
                                         children: {
                                             ':signalId([0-9]+)': {
                                                 title: resolved => t('Signal "{{name}}"', {name: resolved.signal.name || resolved.signal.cid}),
@@ -510,19 +534,25 @@ const getStructure = t => {
                                                         title: t('Edit'),
                                                         link: params => `/settings/signal-sets/${params.signalSetId}/signals/${params.signalId}/edit`,
                                                         visible: resolved => resolved.signal.permissions.includes('edit'),
-                                                        panelRender: props => <SignalsCUD action={props.match.params.action} signalSet={props.resolved.signalSet} entity={props.resolved.signal} />
+                                                        panelRender: props => <SignalsCUD
+                                                            action={props.match.params.action}
+                                                            signalSet={props.resolved.signalSet}
+                                                            entity={props.resolved.signal}/>
                                                     },
                                                     share: {
                                                         title: t('Share'),
                                                         link: params => `/settings/signal-sets/${params.signalSetId}/signals/${params.signalId}/share`,
                                                         visible: resolved => resolved.signal.permissions.includes('share'),
-                                                        panelRender: props => <Share title={t('Share')} entity={props.resolved.signal} entityTypeId="signal" />
+                                                        panelRender: props => <Share title={t('Share')}
+                                                                                     entity={props.resolved.signal}
+                                                                                     entityTypeId="signal"/>
                                                     }
                                                 }
                                             },
                                             create: {
                                                 title: t('Create'),
-                                                panelRender: props => <SignalsCUD signalSet={props.resolved.signalSet} action="create" />
+                                                panelRender: props => <SignalsCUD signalSet={props.resolved.signalSet}
+                                                                                  action="create"/>
                                             }
                                         }
                                     },
@@ -533,7 +563,8 @@ const getStructure = t => {
                                         },
                                         link: params => `/settings/signal-sets/${params.signalSetId}/records`,
                                         visible: resolved => resolved.signalSet.permissions.includes('query'),
-                                        panelRender: props => <RecordsList signalSet={props.resolved.signalSet} signalsVisibleForList={props.resolved.signalsVisibleForList} />,
+                                        panelRender: props => <RecordsList signalSet={props.resolved.signalSet}
+                                                                           signalsVisibleForList={props.resolved.signalsVisibleForList}/>,
                                         children: {
                                             create: {
                                                 title: t('Create'),
@@ -541,7 +572,9 @@ const getStructure = t => {
                                                     signalsVisibleForEdit: params => `rest/signals-visible-edit/${params.signalSetId}`
                                                 },
                                                 link: params => `/settings/signal-sets/${params.signalSetId}/records/create`,
-                                                panelRender: props => <RecordsCUD action="create" signalSet={props.resolved.signalSet} signalsVisibleForEdit={props.resolved.signalsVisibleForEdit} />
+                                                panelRender: props => <RecordsCUD action="create"
+                                                                                  signalSet={props.resolved.signalSet}
+                                                                                  signalsVisibleForEdit={props.resolved.signalsVisibleForEdit}/>
                                             },
                                             ':recordIdBase64/:action(edit|delete)': {
                                                 title: t('Edit'),
@@ -550,7 +583,10 @@ const getStructure = t => {
                                                     record: params => `rest/signal-set-records/${params.signalSetId}/${params.recordIdBase64}`
                                                 },
                                                 link: params => `/settings/signal-sets/${params.signalSetId}/records/${params.recordIdBase64}/edit`,
-                                                panelRender: props => <RecordsCUD action={props.match.params.action} signalSet={props.resolved.signalSet} signalsVisibleForEdit={props.resolved.signalsVisibleForEdit} record={props.resolved.record} />
+                                                panelRender: props => <RecordsCUD action={props.match.params.action}
+                                                                                  signalSet={props.resolved.signalSet}
+                                                                                  signalsVisibleForEdit={props.resolved.signalsVisibleForEdit}
+                                                                                  record={props.resolved.record}/>
                                             }
                                         }
                                     },
@@ -558,13 +594,15 @@ const getStructure = t => {
                                         title: t('Share'),
                                         link: params => `/settings/signal-sets/${params.signalSetId}/share`,
                                         visible: resolved => resolved.signalSet.permissions.includes('share'),
-                                        panelRender: props => <Share title={t('Share')} entity={props.resolved.signalSet} entityTypeId="signalSet" />
+                                        panelRender: props => <Share title={t('Share')}
+                                                                     entity={props.resolved.signalSet}
+                                                                     entityTypeId="signalSet"/>
                                     }
                                 }
                             },
                             create: {
                                 title: t('Create'),
-                                panelRender: props => <SignalSetsCUD action="create" />
+                                panelRender: props => <SignalSetsCUD action="create"/>
                             }
                         }
                     },
@@ -583,18 +621,19 @@ const getStructure = t => {
                                     ':action(edit|delete)': {
                                         title: t('Edit'),
                                         link: params => `/settings/users/${params.userId}/edit`,
-                                        panelRender: props => (<UsersCUD action={props.match.params.action} entity={props.resolved.user} />)
+                                        panelRender: props => (
+                                            <UsersCUD action={props.match.params.action} entity={props.resolved.user}/>)
                                     },
                                     shares: {
                                         title: t('Shares'),
                                         link: params => `/settings/users/${params.userId}/shares`,
-                                        panelRender: props => <UserShares user={props.resolved.user} />
+                                        panelRender: props => <UserShares user={props.resolved.user}/>
                                     }
                                 }
                             },
                             create: {
                                 title: t('Create User'),
-                                panelRender: props => (<UsersCUD action="create" />)
+                                panelRender: props => (<UsersCUD action="create"/>)
                             }
                         }
                     },
@@ -614,19 +653,22 @@ const getStructure = t => {
                                         title: t('Edit'),
                                         link: params => `/settings/namespaces/${params.namespaceId}/edit`,
                                         visible: resolved => resolved.namespace.permissions.includes('edit'),
-                                        panelRender: props => <NamespacesCUD action={props.match.params.action} entity={props.resolved.namespace} />
+                                        panelRender: props => <NamespacesCUD action={props.match.params.action}
+                                                                             entity={props.resolved.namespace}/>
                                     },
                                     share: {
                                         title: t('Share'),
                                         link: params => `/settings/namespaces/${params.namespaceId}/share`,
                                         visible: resolved => resolved.namespace.permissions.includes('share'),
-                                        panelRender: props => <Share title={t('Share')} entity={props.resolved.namespace} entityTypeId="namespace" />
+                                        panelRender: props => <Share title={t('Share')}
+                                                                     entity={props.resolved.namespace}
+                                                                     entityTypeId="namespace"/>
                                     }
                                 }
                             },
                             create: {
                                 title: t('Create'),
-                                panelRender: props => <NamespacesCUD action="create" />
+                                panelRender: props => <NamespacesCUD action="create"/>
                             },
                         }
                     }
@@ -641,7 +683,7 @@ const getStructure = t => {
 };
 
 ReactDOM.render(
-    <TranslationRoot><Section root='/' structure={getStructure} /></TranslationRoot>,
+    <TranslationRoot><Section root='/' structure={getStructure}/></TranslationRoot>,
     document.getElementById('root')
 );
 

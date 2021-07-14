@@ -1,5 +1,6 @@
 'use strict';
 
+
 const knex = require('../lib/knex');
 const hasher = require('node-object-hash')();
 const {enforce, filterObject} = require('../lib/helpers');
@@ -14,6 +15,7 @@ const taskHandler = require('../lib/task-handler');
 const files = require('./files');
 const dependencyHelpers = require('../lib/dependency-helpers');
 const {getWizard} = require("../lib/wizards");
+const {isBuiltinSource} = require("../../shared/tasks");
 
 const allowedKeysCreate = new Set(['name', 'description', 'type', 'settings', 'namespace']);
 const allowedKeysUpdate = new Set(['name', 'description', 'settings', 'namespace']);
@@ -41,7 +43,7 @@ function getQueryFun(source) {
 async function getById(context, id) {
     return await knex.transaction(async tx => {
         const task = await tx('tasks').where('id', id).first();
-        if (!task || task.source !== TaskSource.BUILTIN) {
+        if (!task || !isBuiltinSource(task.source)) {
             await shares.enforceEntityPermissionTx(tx, context, 'task', id, 'view');
         }
         task.settings = JSON.parse(task.settings);
@@ -51,7 +53,17 @@ async function getById(context, id) {
     });
 }
 
-async function listDTAjaxWithoutPerms(params) {
+
+async function listSystemDTAjaxWithoutPerms(context, params) {
+    shares.enforceGlobalPermission(context, 'viewSystemTasks');
+    return await dtHelpers.ajaxList(
+        params,
+        getQueryFun(TaskSource.SYSTEM),
+        columns
+    );
+}
+
+async function listBuiltinDTAjaxWithoutPerms(params) {
     return await dtHelpers.ajaxList(
         params,
         getQueryFun(TaskSource.BUILTIN),
@@ -281,4 +293,5 @@ module.exports.remove = remove;
 module.exports.getParamsById = getParamsById;
 module.exports.compile = compile;
 module.exports.compileAll = compileAll;
-module.exports.listDTAjaxWithoutPerms = listDTAjaxWithoutPerms;
+module.exports.listBuiltinDTAjaxWithoutPerms = listBuiltinDTAjaxWithoutPerms;
+module.exports.listSystemDTAjaxWithoutPerms = listSystemDTAjaxWithoutPerms;

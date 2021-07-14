@@ -10,7 +10,7 @@ import {
     Toolbar,
     withPageHelpers
 } from "../../lib/page";
-import {Icon} from "../../lib/bootstrap-components";
+import {ActionLink, Icon} from "../../lib/bootstrap-components";
 import axios from "../../lib/axios";
 import {
     withAsyncErrorHandler,
@@ -28,6 +28,8 @@ import {
 } from "../../lib/modals";
 import {withComponentMixins} from "../../lib/decorator-helpers";
 import {withTranslation} from "../../lib/i18n";
+import styles from "../tasks/List.scss";
+import {TaskSource} from "../../../../shared/tasks";
 
 
 @withComponentMixins([
@@ -40,7 +42,9 @@ export default class List extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {};
+        this.state = {
+            tab: TaskSource.USER
+        };
         tableRestActionDialogInit(this);
 
         this.jobStates = getJobStates(props.t);
@@ -130,15 +134,18 @@ export default class List extends Component {
                 actions: data => {
 
                     const actions = [];
-                    const perms = data[11];
+                    const isReadOnly = data[11] !== TaskSource.USER;
+                    const perms = data[12];
                     const runSpecs = this.runSpecs.get(data[0]);
+
                     let runStatus = null;
                     if (runSpecs) {
                         runStatus = runSpecs.status;
                     }
                     let refreshTimeout;
 
-                    if (perms.includes('execute')) {
+                    if (!isReadOnly) {
+                        if (perms.includes('execute')) {
                             if (runStatus === RunStatus.INITIALIZATION
                                 || runStatus === RunStatus.SCHEDULED
                                 || runStatus === RunStatus.RUNNING) {
@@ -155,31 +162,42 @@ export default class List extends Component {
                                     action: (table) => this.run(table, data[0])
                                 });
                             }
-                    }
+                        }
 
-                    if (perms.includes('view')) {
+                        if (perms.includes('view')) {
+                            actions.push({
+                                label: <Icon icon="file-alt" family="far" title={t('Run logs')}/>,
+                                link: `/settings/jobs/${data[0]}/log`
+                            });
+                        }
+
+                        if (perms.includes('edit')) {
+
+                            actions.push({
+                                label: <Icon icon="edit" title={t('Settings')}/>,
+                                link: `/settings/jobs/${data[0]}/edit`
+                            });
+                        }
+
+                        if (perms.includes('share')) {
+                            actions.push({
+                                label: <Icon icon="share" title={t('Share')}/>,
+                                link: `/settings/jobs/${data[0]}/share`
+                            });
+                        }
+
+                        tableAddDeleteButton(actions, this, perms, `rest/jobs/${data[0]}`, data[1], t('Deleting job ...'), t('Job deleted'));
+                    } else {
+                        actions.push({
+                            label: <Icon icon="edit" title={t('Settings')}/>,
+                            link: `/settings/jobs/${data[0]}/edit`
+                        });
                         actions.push({
                             label: <Icon icon="file-alt" family="far" title={t('Run logs')}/>,
                             link: `/settings/jobs/${data[0]}/log`
                         });
                     }
 
-                    if (perms.includes('edit')) {
-
-                        actions.push({
-                            label: <Icon icon="edit" title={t('Settings')}/>,
-                            link: `/settings/jobs/${data[0]}/edit`
-                        });
-                    }
-
-                    if (perms.includes('share')) {
-                        actions.push({
-                            label: <Icon icon="share" title={t('Share')}/>,
-                            link: `/settings/jobs/${data[0]}/share`
-                        });
-                    }
-
-                    tableAddDeleteButton(actions, this, perms,`rest/jobs/${data[0]}`, data[1], t('Deleting job ...'), t('Job deleted'));
                     return {refreshTimeout, actions};
                 }
             }
@@ -191,16 +209,38 @@ export default class List extends Component {
             action: ''
         });
 
+        const dataUrl = this.state.tab === TaskSource.USER ? "rest/jobs-table" : "rest/system-jobs-table";
         return (
-            <Panel title={t('Jobs')} onPanelMenuAction={action => {window.location.href = getUrl('settings/jobs/running')}} panelMenu={panelMenu}>
+            <Panel title={t('Jobs')} onPanelMenuAction={action => {
+                window.location.href = getUrl('settings/jobs/running')
+            }} panelMenu={panelMenu}>
                 {tableRestActionDialogRender(this)}
-                {this.state.createPermitted &&
-                <Toolbar>
+                <div className={styles.toolbar}>
+                    <ul className="nav nav-pills">
+                        {/* This actually represents both the user and builtin tasks */}
+                        <li key={TaskSource.USER} className={this.state.tab === TaskSource.USER ? 'active' : ''}>
+                            <ActionLink className={'nav-link' + (this.state.tab === TaskSource.USER ? ' active' : '')}
+                                        onClickAsync={() => {
+                                            this.setState({tab: TaskSource.USER})
+                                        }}>{t('User')}</ActionLink>
+                        </li>
+                        {ivisConfig.globalPermissions.viewSystemJobs &&
+                        <li key={TaskSource.SYSTEM} className={this.state.tab === TaskSource.SYSTEM ? 'active' : ''}>
+                            <ActionLink
+                                className={'nav-link' + (this.state.tab === TaskSource.SYSTEM ? ' active' : '')}
+                                onClickAsync={() => {
+                                    this.setState({tab: TaskSource.SYSTEM})
+                                }}>{t('System')}</ActionLink>
+                        </li>
+                        }
+
+                    </ul>
+                    {this.state.createPermitted &&
                     <LinkButton to="/settings/jobs/create" className="btn-primary" icon="plus"
-                               label={t('Create Job')}/>
-                </Toolbar>
-                }
-                <Table ref={node => this.table = node} withHeader dataUrl="rest/jobs-table" columns={columns}/>
+                                label={t('Create Job')}/>
+                    }
+                </div>
+                <Table ref={node => this.table = node} withHeader dataUrl={dataUrl} columns={columns}/>
             </Panel>
         );
     }

@@ -131,6 +131,12 @@ export default class RunConsole extends Component {
         };
     }
 
+    closeRunEventSource() {
+        if (this.runEventSource) {
+            this.runEventSource.close();
+            this.runEventSource = null;
+        }
+    }
 
     render() {
         const t = this.props.t;

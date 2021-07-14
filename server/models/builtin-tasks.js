@@ -4,13 +4,12 @@ const knex = require('../lib/knex');
 const path = require('path');
 const fs = require('fs-extra-promise');
 const {getVirtualNamespaceId} = require("../../shared/namespaces");
-const {TaskSource, BuildState, TaskType, PYTHON_BUILTIN_CODE_FILE_NAME} = require("../../shared/tasks");
+const {BuiltinTaskNames, TaskSource, BuildState, TaskType, PYTHON_BUILTIN_CODE_FILE_NAME, PYTHON_BUILTIN_PARAMS_FILE_NAME} = require("../../shared/tasks");
 const em = require('../lib/extension-manager');
 
 // code is loaded from file
-
 const aggregationTask = {
-    name: 'aggregation',
+    name: BuiltinTaskNames.AGGREGATION,
     description: 'Task used by aggregation feature for signal sets',
     type: TaskType.PYTHON,
     settings: {
@@ -42,9 +41,10 @@ const aggregationTask = {
 };
 
 const flattenTask = {
-    name: 'Flatten',
+    name: BuiltinTaskNames.FLATTEN,
     description: 'Task will combine specified signals into single signal set and resolve conflicts on the same time point with the chosen method',
     type: TaskType.PYTHON,
+    source: TaskSource.SYSTEM,
     settings: {
         builtin_reinitOnUpdate: true,
         params: [
@@ -130,12 +130,13 @@ const flattenTask = {
         ],
     },
 };
+
 /**
  * All default builtin tasks
  */
 const builtinTasks = [
     aggregationTask,
-    flattenTask
+    flattenTask,
 ];
 
 em.on('builtinTasks.add', addTasks);
@@ -153,10 +154,12 @@ async function getBuiltinTask(name) {
  * @return {Promise<any>} undefined if not found, found task otherwise
  */
 async function checkExistence(tx, name) {
-    return await tx('tasks').where({
-        source: TaskSource.BUILTIN,
-        name: name
-    }).first();
+    return await tx('tasks')
+        .where({
+            name: name
+        })
+        .whereIn('source', [TaskSource.BUILTIN, TaskSource.SYSTEM])
+        .first();
 }
 
 /**
@@ -167,7 +170,12 @@ async function checkExistence(tx, name) {
  */
 async function addBuiltinTask(tx, builtinTask) {
     const task = {...builtinTask};
-    task.source = TaskSource.BUILTIN;
+    // Only Builtin or system tasks allowed here
+    if (builtinTask.source === TaskSource.SYSTEM) {
+        task.source = TaskSource.SYSTEM;
+    } else {
+        task.source = TaskSource.BUILTIN;
+    }
     task.namespace = getVirtualNamespaceId();
     task.settings = JSON.stringify(task.settings);
     task.build_state = BuildState.UNINITIALIZED;
@@ -179,11 +187,16 @@ async function addBuiltinTask(tx, builtinTask) {
  * @param tx
  * @param id of existing task
  * @param builtinTask columns being updated
+ * @param reinit
  * @return {Promise<void>}
  */
 async function updateBuiltinTask(tx, id, builtinTask, reinit = false) {
     const task = {...builtinTask};
-    task.source = TaskSource.BUILTIN;
+    if (builtinTask.source === TaskSource.SYSTEM) {
+        task.source = TaskSource.SYSTEM;
+    } else {
+        task.source = TaskSource.BUILTIN;
+    }
     task.namespace = getVirtualNamespaceId();
     task.settings = JSON.stringify(task.settings);
     if (reinit) {
@@ -197,15 +210,17 @@ async function updateBuiltinTask(tx, id, builtinTask, reinit = false) {
  * @return {Promise<void>}
  */
 async function storeBuiltinTasks() {
-    const tasks = [];
     for (const builtinTask of builtinTasks) {
-        const task = {...builtinTask}
         if (builtinTask.settings.code == null) {
-            // WARN mutating defaults
+            // WARN mutating
             builtinTask.settings.code = await getCodeForBuiltinTask(builtinTask.name);
         }
+        if (builtinTask.settings.params == null) {
+            // WARN mutating
+            builtinTask.settings.params = await getParamsForBuiltinTask(builtinTask.name);
+        }
     }
-    await addTasks(tasks);
+    await addTasks(builtinTasks);
 }
 
 async function getCodeForBuiltinTask(taskName) {
@@ -217,12 +232,22 @@ async function getCodeForBuiltinTask(taskName) {
     return '';
 }
 
+async function getParamsForBuiltinTask(taskName) {
+    const builtinParamsFile = path.join(__dirname, '..', 'builtin-files', taskName, PYTHON_BUILTIN_PARAMS_FILE_NAME);
+    const hasParams = await fs.existsAsync(builtinParamsFile);
+    if (hasParams) {
+        const params = await fs.readFileAsync(builtinParamsFile, 'utf-8')
+        return JSON.parse(params)
+    }
+    return [];
+}
+
 /**
  * Add given tasks as builtin tasks
  * @param tasks
  * @return {Promise<void>}
  */
-async function addTasks(tasks,) {
+async function addTasks(tasks) {
     if (!Array.isArray(tasks)) {
         tasks = [tasks];
     }

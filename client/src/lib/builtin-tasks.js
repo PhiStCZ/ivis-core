@@ -1,9 +1,9 @@
 "use strict";
 
-import axios from "axios";
+import axios from "../lib/axios";
 import {getUrl} from "./urls";
 
 export async function fetchBuiltinTasks() {
-    const data = await axios.post(getUrl(`rest/builtin-tasks`));
+    const data = await axios.get(getUrl(`rest/builtin-tasks`));
     return data.data;
 }

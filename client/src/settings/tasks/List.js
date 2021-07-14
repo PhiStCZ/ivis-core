@@ -167,6 +167,12 @@ export default class List extends Component {
             }
         ];
 
+        let dataUrl = "rest/tasks-table";
+        if (this.state.tab === TaskSource.BUILTIN) {
+            dataUrl = "rest/builtin-tasks";
+        } else if (this.state.tab === TaskSource.SYSTEM) {
+            dataUrl = "rest/system-tasks";
+        }
 
         return (
             <Panel title={t('Tasks')}>
@@ -187,13 +193,23 @@ export default class List extends Component {
                                     this.setState({tab: TaskSource.BUILTIN})
                                 }}>{t('Built-in')}</ActionLink>
                         </li>
+
+                        {ivisConfig.globalPermissions.viewSystemTasks &&
+                        <li key={TaskSource.SYSTEM} className={this.state.tab === TaskSource.SYSTEM ? 'active' : ''}>
+                            <ActionLink
+                                className={'nav-link' + (this.state.tab === TaskSource.SYSTEM ? ' active' : '')}
+                                onClickAsync={() => {
+                                    this.setState({tab: TaskSource.SYSTEM})
+                                }}>{t('System')}</ActionLink>
+                        </li>
+                        }
                     </ul>
                     <LinkButton to="/settings/tasks/create" className="btn-primary" icon="plus"
                                 label={t('Create Task')}/>
                 </div>
                 }
                 <Table ref={node => this.table = node} withHeader
-                       dataUrl={this.state.tab === TaskSource.USER ? "rest/tasks-table" : "rest/builtin-tasks"}
+                       dataUrl={dataUrl}
                        columns={columns}/>
             </Panel>
         );

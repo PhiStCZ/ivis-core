@@ -36,8 +36,17 @@ router.postAsync('/tasks-table', passport.loggedIn, async (req, res) => {
     return res.json(await tasks.listDTAjax(req.context, req.body));
 });
 
+router.getAsync('/builtin-tasks', passport.loggedIn, async (req, res) => {
+    return res.json(await builtinTasks.list());
+});
+
+// For tables
 router.postAsync('/builtin-tasks', passport.loggedIn, async (req, res) => {
-    return res.json(await tasks.listDTAjaxWithoutPerms(req.body, TaskSource.BUILTIN));
+    return res.json(await tasks.listBuiltinDTAjaxWithoutPerms(req.body));
+});
+
+router.postAsync('/system-tasks', passport.loggedIn, async (req, res) => {
+    return res.json(await tasks.listSystemDTAjaxWithoutPerms(req.context, req.body));
 });
 
 router.getAsync('/task-params/:taskId', passport.loggedIn, async (req, res) => {
