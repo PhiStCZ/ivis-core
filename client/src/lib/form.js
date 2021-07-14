@@ -666,7 +666,7 @@ class ColorPicker extends Component {
     }
 
     toggle() {
-        if (!disabled) {
+        if (!this.props.disabled) {
             this.setState({
                 opened: !this.state.opened
             });
