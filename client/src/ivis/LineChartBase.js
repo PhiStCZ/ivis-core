@@ -540,8 +540,7 @@ export class LineChartBase extends Component {
             selection = isSelection ? selection : null;
 
             if (selection !== baseState.selection ||
-                mousePosition.x !== baseState.mousePosition.x ||
-                mousePosition.y !== baseState.mousePosition.y) {
+                !_.isEqual(mousePosition, baseState.mousePosition)) {
                 base.setState({
                     selection,
                     mousePosition
