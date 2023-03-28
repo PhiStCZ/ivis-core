@@ -139,8 +139,6 @@ const builtinTasks = [
     flattenTask,
 ];
 
-em.on('builtinTasks.add', addTasks);
-
 async function getBuiltinTask(name) {
     return await knex.transaction(async tx => {
         return await checkExistence(tx, name)
@@ -206,40 +204,41 @@ async function updateBuiltinTask(tx, id, builtinTask, reinit = false) {
 }
 
 /**
+ * Add code and params to a task from a given builtin task directory which
+ * contains the task's code.py or params.json .
+ * @param builtinTask the task to add code and params to
+ * @param builtinTaskDirPath path to the task's directory
+ */
+async function ensureCodeAndParamsForBuiltinTask(builtinTask, builtinTaskDirPath) {
+    if (!builtinTask.settings) {
+        builtinTask.settings = {};
+    }
+
+    const codeFile = path.join(builtinTaskDirPath, PYTHON_BUILTIN_CODE_FILE_NAME);
+    if (!builtinTask.settings.code) {
+        builtinTask.settings.code = await tryGetBuiltinFileContent(codeFile) || '';
+    }
+
+    const paramsFile = path.join(builtinTaskDirPath, PYTHON_BUILTIN_PARAMS_FILE_NAME);
+    if (!builtinTask.settings.params) {
+        builtinTask.settings.params = JSON.parse(await tryGetBuiltinFileContent(paramsFile) || '[]');
+    }
+}
+
+/**
  * Check if all default builtin tasks are in the system / set them to default state
  * @return {Promise<void>}
  */
 async function storeBuiltinTasks() {
     for (const builtinTask of builtinTasks) {
-        if (builtinTask.settings.code == null) {
-            // WARN mutating
-            builtinTask.settings.code = await getCodeForBuiltinTask(builtinTask.name);
-        }
-        if (builtinTask.settings.params == null) {
-            // WARN mutating
-            builtinTask.settings.params = await getParamsForBuiltinTask(builtinTask.name);
-        }
+        tasks = [tasks];
+        const builtinTaskPath = path.join(__dirname, '..', 'builtin-files', builtinTask.name);
+        await ensureCodeAndParamsForBuiltinTask(builtinTask, builtinTaskPath);
     }
+
+    await em.invokeAsync('builtinTasks.add', builtinTasks);
+
     await addTasks(builtinTasks);
-}
-
-async function getCodeForBuiltinTask(taskName) {
-    const builtinCodeFile = path.join(__dirname, '..', 'builtin-files', taskName, PYTHON_BUILTIN_CODE_FILE_NAME);
-    const hasCode = await fs.existsAsync(builtinCodeFile);
-    if (hasCode) {
-        return await fs.readFileAsync(builtinCodeFile, 'utf-8')
-    }
-    return '';
-}
-
-async function getParamsForBuiltinTask(taskName) {
-    const builtinParamsFile = path.join(__dirname, '..', 'builtin-files', taskName, PYTHON_BUILTIN_PARAMS_FILE_NAME);
-    const hasParams = await fs.existsAsync(builtinParamsFile);
-    if (hasParams) {
-        const params = await fs.readFileAsync(builtinParamsFile, 'utf-8')
-        return JSON.parse(params)
-    }
-    return [];
 }
 
 /**
@@ -277,5 +276,6 @@ async function list() {
 }
 
 module.exports.list = list;
+module.exports.ensureCodeAndParamsForBuiltinTask = ensureCodeAndParamsForBuiltinTask;
 module.exports.storeBuiltinTasks = storeBuiltinTasks;
 module.exports.getBuiltinTask = getBuiltinTask;
