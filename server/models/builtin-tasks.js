@@ -6,6 +6,7 @@ const fs = require('fs-extra-promise');
 const {getVirtualNamespaceId} = require("../../shared/namespaces");
 const {BuiltinTaskNames, TaskSource, BuildState, TaskType, PYTHON_BUILTIN_CODE_FILE_NAME, PYTHON_BUILTIN_PARAMS_FILE_NAME} = require("../../shared/tasks");
 const em = require('../lib/extension-manager');
+const {tryGetBuiltinFileContent} = require('../lib/builtin-files');
 
 // code is loaded from file
 const aggregationTask = {
@@ -231,7 +232,6 @@ async function ensureCodeAndParamsForBuiltinTask(builtinTask, builtinTaskDirPath
  */
 async function storeBuiltinTasks() {
     for (const builtinTask of builtinTasks) {
-        tasks = [tasks];
         const builtinTaskPath = path.join(__dirname, '..', 'builtin-files', builtinTask.name);
         await ensureCodeAndParamsForBuiltinTask(builtinTask, builtinTaskPath);
     }
