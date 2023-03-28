@@ -138,7 +138,7 @@ async function insertRecords(sigSetWithSigMap, records) {
     const lastId = await getLastId(sigSetWithSigMap);
 
     const recordIdTemplate = signalSets.getRecordIdTemplate(sigSetWithSigMap) || (() => {
-        throw new Exception("Missing record id");
+        throw new Error("Missing record id");
     });
 
     let rows = [];
@@ -169,7 +169,7 @@ async function updateRecord(sigSetWithSigMap, existingRecordId, record) {
     const tblName = getTableName(sigSetWithSigMap);
 
     const recordIdTemplate = signalSets.getRecordIdTemplate(sigSetWithSigMap) || (() => {
-        throw new Exception("Missing record id");
+        throw new Error("Missing record id");
     });
     updateRecordId(recordIdTemplate, record);
 
