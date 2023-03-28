@@ -345,7 +345,9 @@ async function compileAll() {
 
     for (const task of tasks) {
         const settings = JSON.parse(task.settings);
-        settings.code = await getCodeForTask(task.id);
+        if (!settings.code) { // builtin tasks still store code in db
+            settings.code = await getCodeForTask(task.id);
+        }
 
         const uninitialized = (task.build_state === BuildState.UNINITIALIZED);
         await knex('tasks').update({build_state: BuildState.SCHEDULED}).where('id', task.id);
