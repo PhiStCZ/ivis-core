@@ -8,7 +8,9 @@ const csrf = require('csurf');
 const users = require('../models/users');
 const { nodeifyFunction, nodeifyPromise } = require('./nodeify');
 const interoperableErrors = require('../../shared/interoperable-errors');
+const { getAdminId } = require('../../shared/users');
 const contextHelpers = require('./context-helpers');
+const em = require('./extension-manager');
 
 module.exports.csrfProtection = csrf({
     cookie: true
@@ -25,8 +27,18 @@ module.exports.loggedIn = (req, res, next) => {
 
 module.exports.authBySSLCertOrToken = (req, res, next) => {
     const accessToken = req.get('access-token') || req.query.access_token;
+    const globalAccessToken = req.get('global-access-token') || req.query.global_access_token;
 
-    if (accessToken) {
+    if (globalAccessToken) {
+        let globalAccessCheck = { token: globalAccessToken, accept: false };
+        em.invoke('app.validateGlobalAccess', globalAccessCheck);
+        if(globalAccessCheck.accept) {
+            nodeifyPromise((async() => {
+                req.user = await users.getById(contextHelpers.getAdminContext(), getAdminId());
+            })(), next);
+        }
+
+    } else if (accessToken) {
         nodeifyPromise((async () => {
             const user = await users.getByAccessToken(contextHelpers.getAdminContext(), accessToken);
             req.user = user;
