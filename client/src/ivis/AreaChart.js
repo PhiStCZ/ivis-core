@@ -48,6 +48,7 @@ export class AreaChart extends Component {
 
     static propTypes = {
         config: PropTypes.object.isRequired,
+        data: PropTypes.object,
         contentComponent: PropTypes.func,
         contentRender: PropTypes.func,
         onClick: PropTypes.func,
@@ -74,7 +75,7 @@ export class AreaChart extends Component {
         lineCurve: d3Shape.curveLinear
     }
 
-    createChart(base, signalSetsData, abs, xScale, yScales, points) {
+    createChart(base, signalSetsData, baseState, abs, xScale, yScales, points) {
         for (const sigSetConf of this.props.config.signalSets) {
             if (points[sigSetConf.cid]) {
                 for (const sigConf of sigSetConf.signals) {
@@ -125,6 +126,7 @@ export class AreaChart extends Component {
         return (
             <LineChartBase
                 config={props.config}
+                data={props.data}
                 height={props.height}
                 margin={props.margin}
                 signalAggs={['max']}

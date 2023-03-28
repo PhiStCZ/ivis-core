@@ -1,0 +1,27 @@
+.animatedContainer {
+    position: relative;
+
+    .loadingOverlay {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.8);
+
+        .loadingMsgContainer {
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+
+            .loadingSpinner {
+                vertical-align: middle;
+            }
+
+            .loadingMsg {
+                font-weight: bold;
+                font-size: 1.2em;
+                padding-left: 1rem;
+            }
+        }
+    }
+}

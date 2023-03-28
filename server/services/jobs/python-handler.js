@@ -173,8 +173,6 @@ async function build(config, onSuccess, onFail) {
             await git.addConfig("user.email", "admin@example.com");
             await git.addConfig("user.name", "ivis-core");
         }
-        await git.add(devDir)
-        await git.commit('Building')
         await onSuccess(null);
     } catch (error) {
         onFail(null, [error.toString()]);

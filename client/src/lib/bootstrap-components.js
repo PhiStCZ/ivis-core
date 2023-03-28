@@ -5,6 +5,7 @@ import {withTranslation} from './i18n';
 import PropTypes from 'prop-types';
 import {withAsyncErrorHandler, withErrorHandling} from './error-handling';
 import {withComponentMixins} from "./decorator-helpers";
+import moment from "moment";
 
 @withComponentMixins([
     withTranslation,
@@ -380,3 +381,26 @@ export class ModalDialog extends Component {
     }
 }
 
+/**
+ * Simple react component that renders date-time. Renders relative time (e.g. 2 days ago) if the difference between now and timeStamp
+ * is less than thresholdDays. Renders exact time (e.g. 2020-10-25 14:23:11) otherwise.
+ */
+export class RelativeTime extends Component {
+    static propTypes = {
+        timeStamp: PropTypes.string.isRequired,
+        thresholdDays: PropTypes.number
+    }
+    static defaultProps = {
+        thresholdDays: 100
+    }
+
+    render() {
+        const ts = this.props.timeStamp;
+        const td = this.props.thresholdDays;
+        const relative = moment(ts).fromNow();
+        const exact = moment(ts).format('YYYY-MM-DD HH:mm:ss');
+
+        if (moment().diff(ts, 'days') < td) return <span title = {exact}>{relative}</span>;
+        else return <span title = {relative}>{exact}</span>;
+    }
+}

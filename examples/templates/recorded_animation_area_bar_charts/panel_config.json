@@ -1,0 +1,264 @@
+{
+  "areachart": {
+    "sigSets": [
+      {
+        "cid": "it",
+        "tsSigCid": "ts",
+        "signals": [
+          {
+            "label": "Italy confirmed",
+            "color": {
+              "r": 65,
+              "g": 117,
+              "b": 5,
+              "a": 1
+            },
+            "cid": "total_confirmed"
+          }
+        ]
+      },
+      {
+        "cid": "it_25",
+        "tsSigCid": "ts",
+        "signals": [
+          {
+            "label": "Lombardy confirmed",
+            "color": {
+              "r": 218,
+              "g": 23,
+              "b": 23,
+              "a": 1
+            },
+            "cid": "total_confirmed"
+          }
+        ]
+      },
+      {
+        "cid": "it_21",
+        "tsSigCid": "ts",
+        "signals": [
+          {
+            "label": "Piedmont confirmed",
+            "color": {
+              "r": 223,
+              "g": 212,
+              "b": 72,
+              "a": 1
+            },
+            "cid": "total_confirmed"
+          }
+        ]
+      }
+    ]
+  },
+  "barchart": {
+    "domainLabel": "Regions",
+    "codomainLabel": "Number of cases",
+    "valueFormatSpecifier": "",
+    "categories": [
+      {
+        "id": "confirmed",
+        "label": "Confirmed",
+        "color": {
+          "r": 228,
+          "g": 213,
+          "b": 75,
+          "a": 1
+        }
+      },
+      {
+        "id": "deceased",
+        "label": "Deceased",
+        "color": {
+          "r": 202,
+          "g": 101,
+          "b": 114,
+          "a": 1
+        }
+      },
+      {
+        "id": "recovered",
+        "label": "Recovered",
+        "color": {
+          "r": 79,
+          "g": 129,
+          "b": 189,
+          "a": 1
+        }
+      }
+    ],
+    "dataSets": [
+      {
+        "name": "Lombardy",
+        "sigSetCid": "it_25",
+        "tsSigCid": "ts",
+        "categories": [
+          {
+            "categoryId": "confirmed",
+            "cid": "total_confirmed"
+          },
+          {
+            "categoryId": "deceased",
+            "cid": "total_deceased"
+          },
+          {
+            "categoryId": "recovered",
+            "cid": "total_recovered"
+          }
+        ]
+      },
+      {
+        "name": "Emilia-Romagna",
+        "sigSetCid": "it_45",
+        "tsSigCid": "ts",
+        "categories": [
+          {
+            "categoryId": "confirmed",
+            "cid": "total_confirmed"
+          },
+          {
+            "categoryId": "deceased",
+            "cid": "total_deceased"
+          },
+          {
+            "categoryId": "recovered",
+            "cid": "total_recovered"
+          }
+        ]
+      },
+      {
+        "name": "Veneto",
+        "sigSetCid": "it_34",
+        "tsSigCid": "ts",
+        "categories": [
+          {
+            "categoryId": "confirmed",
+            "cid": "total_confirmed"
+          },
+          {
+            "categoryId": "deceased",
+            "cid": "total_deceased"
+          },
+          {
+            "categoryId": "recovered",
+            "cid": "total_recovered"
+          }
+        ]
+      },
+      {
+        "name": "Friuli Venezia Giulia",
+        "sigSetCid": "it_36",
+        "tsSigCid": "ts",
+        "categories": [
+          {
+            "categoryId": "confirmed",
+            "cid": "total_confirmed"
+          },
+          {
+            "categoryId": "deceased",
+            "cid": "total_deceased"
+          },
+          {
+            "categoryId": "recovered",
+            "cid": "total_recovered"
+          }
+        ]
+      },
+      {
+        "name": "Marche",
+        "sigSetCid": "it_57",
+        "tsSigCid": "ts",
+        "categories": [
+          {
+            "categoryId": "confirmed",
+            "cid": "total_confirmed"
+          },
+          {
+            "categoryId": "deceased",
+            "cid": "total_deceased"
+          },
+          {
+            "categoryId": "recovered",
+            "cid": "total_recovered"
+          }
+        ]
+      },
+      {
+        "name": "Campania",
+        "sigSetCid": "it_72",
+        "tsSigCid": "ts",
+        "categories": [
+          {
+            "categoryId": "confirmed",
+            "cid": "total_confirmed"
+          },
+          {
+            "categoryId": "deceased",
+            "cid": "total_deceased"
+          },
+          {
+            "categoryId": "recovered",
+            "cid": "total_recovered"
+          }
+        ]
+      },
+      {
+        "name": "Lazio",
+        "sigSetCid": "it_62",
+        "tsSigCid": "ts",
+        "categories": [
+          {
+            "categoryId": "confirmed",
+            "cid": "total_confirmed"
+          },
+          {
+            "categoryId": "deceased",
+            "cid": "total_deceased"
+          },
+          {
+            "categoryId": "recovered",
+            "cid": "total_recovered"
+          }
+        ]
+      },
+      {
+        "name": "Piedmont",
+        "sigSetCid": "it_21",
+        "tsSigCid": "ts",
+        "categories": [
+          {
+            "categoryId": "confirmed",
+            "cid": "total_confirmed"
+          },
+          {
+            "categoryId": "deceased",
+            "cid": "total_deceased"
+          },
+          {
+            "categoryId": "recovered",
+            "cid": "total_recovered"
+          }
+        ]
+      },
+      {
+        "name": "Tuscany",
+        "sigSetCid": "it_52",
+        "tsSigCid": "ts",
+        "categories": [
+          {
+            "categoryId": "confirmed",
+            "cid": "total_confirmed"
+          },
+          {
+            "categoryId": "deceased",
+            "cid": "total_deceased"
+          },
+          {
+            "categoryId": "recovered",
+            "cid": "total_recovered"
+          }
+        ]
+      }
+    ]
+  }
+}

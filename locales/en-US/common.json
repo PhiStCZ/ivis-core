@@ -354,6 +354,7 @@
   "confirmDeletion": "Confirm Deletion",
   "areYouSureYouWantToDeleteName?": "Are you sure you want to delete \"{{name}}\"?",
   "areYouSureYouWantToEraseAllRunLogs?": "Are you sure you want to erase all run logs for job with id \"{{id}}\"?",
+  "areYouSureYouWantToCheckout?":"Are you sure you want to checkout \"{{hash}}\"?",
   "namespaceMustBeSelected": "Namespace must be selected",
   "mjml": "MJML",
   "html": "HTML",

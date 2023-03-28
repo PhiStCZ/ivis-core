@@ -15,7 +15,7 @@ const {getAdminContext} = require('../../lib/context-helpers');
 const createSigSet = require('../../models/signal-sets').createTx;
 const createSignal = require('../../models/signals').createTx;
 
-const {getSuccessEventType, getOutputEventType} = require('../../lib/task-events');
+const {getSuccessEventType, getOutputEventType, EventTypes} = require('../../lib/task-events');
 
 const {TYPE_JOBS, INDEX_JOBS, STATE_FIELD} = require('../../lib/task-handler').esConstants
 const LOG_ID = 'Task-handler';
@@ -191,6 +191,14 @@ function createRunManager(jobId, runId, runOptions) {
     let limitReached = false;
     let outputBuffer = [];
     let timer;
+    let accessTokenRefreshTimer;
+    let accessToken = runOptions.config.inputData.accessToken;
+
+    if (accessToken) {
+        refreshAccessToken().catch(
+            e => log.error(e)
+        );
+    }
 
     return {
         onRunEvent,
@@ -198,8 +206,18 @@ function createRunManager(jobId, runId, runOptions) {
         onRunFail: onRunFailFromRunningStatus
     }
 
+    async function refreshAccessToken() {
+        runOptions.emit(EventTypes.ACCESS_TOKEN_REFRESH, {
+            runId,
+            jobId,
+            accessToken
+        });
+        accessTokenRefreshTimer = setTimeout(refreshAccessToken, 30 * 1000);
+    }
+
     async function onRunFailFromRunningStatus(errMsg) {
         await cleanBuffer();
+        clearTimeout(accessTokenRefreshTimer);
         await runOptions.onRunFail(jobId, runId, runData, errMsg);
     }
 
@@ -210,6 +228,7 @@ function createRunManager(jobId, runId, runOptions) {
      */
     async function onRunSuccess(config) {
         await cleanBuffer();
+        clearTimeout(accessTokenRefreshTimer);
 
         runOptions.onRunSuccess();
         runData.finished_at = new Date();

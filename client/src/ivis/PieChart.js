@@ -10,7 +10,7 @@ import * as d3Shape from "d3-shape";
 import {select} from "d3-selection";
 import {StaticLegend} from "./Legend";
 import styles
-    from './PieChart.scss'
+    from './PieChart.scss';
 import {withComponentMixins} from "../lib/decorator-helpers";
 import {withTranslation} from "../lib/i18n";
 import {PropType_d3Color, PropType_d3Color_Required} from "../lib/CustomPropTypes";
@@ -19,7 +19,7 @@ export const LegendPosition = {
     NONE: 0,
     RIGHT: 1,
     BOTTOM: 2
-}
+};
 
 const legendStructure = [
     {
@@ -48,9 +48,17 @@ export class StaticPieChart extends Component {
             arcs: PropTypes.arrayOf(PropTypes.shape({
                 label: PropTypes.string.isRequired,
                 color: PropType_d3Color(),
-                value: PropTypes.number.isRequired
+                value: PropTypes.oneOfType([
+                    PropTypes.number,
+                    PropTypes.shape({
+                        sigSetCid: PropTypes.string.isRequired,
+                        signalCid: PropTypes.string.isRequired,
+                        agg: PropTypes.string.isRequired,
+                    })
+                ]).isRequired
             })).isRequired
         }).isRequired,
+        data: PropTypes.object,
         height: PropTypes.number.isRequired,
         margin: PropTypes.object,
         getArcColor: PropTypes.func,
@@ -59,6 +67,7 @@ export class StaticPieChart extends Component {
         arcWidth: PropTypes.number,
         drawPercentageLabels: PropTypes.bool,
         legendWidth: PropTypes.number,
+        legendHeight: PropTypes.number,
         legendPosition: PropTypes.number,
         legendRowClass: PropTypes.string
     }
@@ -80,6 +89,7 @@ export class StaticPieChart extends Component {
             bottom: 5
         },
         legendWidth: 120,
+        legendHeight: 100,
         legendRowClass: 'col-12',
         legendPosition: LegendPosition.RIGHT,
         colors: d3Scheme.schemeCategory10,
@@ -94,7 +104,8 @@ export class StaticPieChart extends Component {
 
     componentDidUpdate(prevProps, prevState, prevContext) {
         const forceRefresh = this.prevContainerNode !== this.containerNode
-            || prevProps.config !== this.props.config;
+            || prevProps.config !== this.props.config
+            || this.props.data !== prevProps.data;
 
         this.createChart(forceRefresh);
         this.prevContainerNode = this.containerNode;
@@ -134,16 +145,37 @@ export class StaticPieChart extends Component {
         this.shadowsSelection.attr('transform', `translate(${centerX},${centerY})`);
         this.pieSelection.attr('transform', `translate(${centerX},${centerY})`);
         this.labelsSelection.attr('transform', `translate(${centerX},${centerY})`);
+        this.msgSelection.attr('transform', `translate(${centerX},${centerY})`);
+
+        const entryValueAccessor = (entry) => {
+            if (typeof entry.value === 'number') {
+                return entry.value;
+            }
+
+            let resValue = null;
+            const valObj = entry.value;
+            if (this.props.data && valObj.sigSetCid && valObj.signalCid && valObj.agg) {
+                resValue = this.props.data[valObj.sigSetCid][valObj.signalCid][valObj.agg];
+            }
+
+            return typeof resValue === "number" ? resValue : 0;
+        };
 
         let total = 0;
         for (const entry of this.props.config.arcs) {
-            total += entry.value;
+            total += entryValueAccessor(entry);
+        }
+
+        if (total === 0) {
+            this.msgSelection.text('No data.');
+        } else {
+            this.msgSelection.text(null);
         }
 
         const pieGen = d3Shape.pie()
             .padAngle(0.02)
             .sort(null)
-            .value(d => d.value);
+            .value(entryValueAccessor);
 
         const arcGen = d3Shape.arc()
             .outerRadius(radius)
@@ -196,6 +228,7 @@ export class StaticPieChart extends Component {
                             <feGaussianBlur result="blurOut" in="offOut" stdDeviation="2" />
                         </filter>
                     </defs>
+                    <text ref={node => this.msgSelection = select(node)} fill="black" textAnchor="middle"/>
                     <g ref={node => this.shadowsSelection = select(node)} />
                     <g ref={node => this.pieSelection = select(node)} />
                     <g ref={node => this.labelsSelection = select(node)} />

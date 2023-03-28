@@ -203,6 +203,7 @@ export class TimeBasedChartBase extends Component {
 
     static propTypes = {
         config: PropTypes.object.isRequired,
+        data: PropTypes.object,
         contentComponent: PropTypes.func,
         contentRender: PropTypes.func,
         height: PropTypes.number.isRequired,
@@ -264,7 +265,7 @@ export class TimeBasedChartBase extends Component {
         window.addEventListener('keyup', ::this.keyupListener);
 
         // This causes the absolute interval to change, which in turn causes a data fetch
-        this.updateTimeIntervalChartWidth();
+        this.resizeListener();
 
         if (!this.delayedFetchDueToTimeIntervalChartWidthUpdate) {
             // noinspection JSIgnoredPromiseFromCall
@@ -300,7 +301,7 @@ export class TimeBasedChartBase extends Component {
             ? this.getIntervalSpec(prevProps) !== this.getIntervalSpec()
             : this.getRange(prevProps) !== this.getRange();
 
-        if (configDiff === ConfigDifference.DATA) {
+        if (configDiff === ConfigDifference.DATA && !this.props.data) {
             this.setState({
                 signalSetsData: null
             });
@@ -310,11 +311,15 @@ export class TimeBasedChartBase extends Component {
             this.fetchData();
             signalSetsData = null;
 
-        } else if (specDiffers) {
+        } else if (specDiffers && !this.props.data) {
             this.zoom = null;
             // noinspection JSIgnoredPromiseFromCall
             this.fetchData();
-        } else if (this.delayedFetchDueToTimeIntervalChartWidthUpdate || absIntervalDiffers) { // If its just a regular refresh, don't clear the chart
+        } else if (
+            this.delayedFetchDueToTimeIntervalChartWidthUpdate ||
+            absIntervalDiffers ||
+            this.props.data !== prevProps.data
+        ) { // If its just a regular refresh, don't clear the chart
             this.delayedFetchDueToTimeIntervalChartWidthUpdate = false;
 
             if (!areZoomTransformsEqual(this.state.zoomTransform, d3Zoom.zoomIdentity)) // update time interval based on what is currently visible
@@ -352,12 +357,18 @@ export class TimeBasedChartBase extends Component {
         this.setState(newState);
 
         try {
-            const interval = this.props.xAxisType === XAxisType.DATETIME
-                ? this.getIntervalAbsolute()
-                : this.getRange();
-            const queries = this.props.getQueries(this, interval, this.props.config);
+            let results = null;
 
-            const results = await this.dataAccessSession.getLatestMixed(queries);
+            if (this.props.data) {
+                results = [this.props.data];
+            } else {
+                const interval = this.props.xAxisType === XAxisType.DATETIME
+                    ? this.getIntervalAbsolute()
+                    : this.getRange();
+                const queries = this.props.getQueries(this, interval, this.props.config);
+
+                results = await this.dataAccessSession.getLatestMixed(queries);
+            }
 
             if (results) {
                 // This converts NaNs and Infinity to null. D3 can handle nulls in data by omitting the data point
@@ -646,7 +657,7 @@ export class TimeBasedChartBase extends Component {
                 tooltipExtraProps.contentRender = (props) => <TooltipContent
                     getSignalValues={this.props.getSignalValuesForDefaultTooltip} {...props}/>;
             }
-            
+
             return (
                 <svg id="cnt" ref={node => {
                     this.containerNode = node;

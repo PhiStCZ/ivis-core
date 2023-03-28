@@ -54,6 +54,8 @@ export class SVG extends Component {
         if (this.props.url) {
             // noinspection JSIgnoredPromiseFromCall
             this.fetchSvg();
+        } else {
+            this.renderSvg();
         }
     }
 
@@ -73,23 +75,31 @@ export class SVG extends Component {
     }
 
     renderSvg() {
+        const updateSize = (elem) => {
+            elem.removeAttribute('width');
+            elem.removeAttribute('height');
+            elem.style.width = this.props.width;
+            elem.style.height = this.props.height;
+            elem.style.maxWidth = this.props.maxWidth;
+            elem.style.maxHeight = this.props.maxHeight;
+        };
+
         if (this.renderedSvg !== this.state.svg) {
             this.svgNode.innerHTML = this.state.svg;
             this.renderedSvg = this.state.svg;
 
             for (const elem of this.svgNode.children) {
                 if (elem.tagName === 'svg') {
-                    elem.removeAttribute('width');
-                    elem.removeAttribute('height');
-                    elem.style.width = this.props.width;
-                    elem.style.height = this.props.height;
-                    elem.style.maxWidth = this.props.maxWidth;
-                    elem.style.maxHeight = this.props.maxHeight;
+                    updateSize(elem);
 
                     if (this.props.init) {
                         this.props.init(elem);
                     }
                 }
+            }
+        } else {
+            for (const elem of this.svgNode.children) {
+                if (elem.tagName === 'svg') updateSize(elem);
             }
         }
 

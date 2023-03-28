@@ -1,0 +1,70 @@
+{
+        "animation": {
+            "pollRate": "800",
+            "isPlaying": false,
+            "intervalSpanBefore": "5000",
+            "intervalSpanAfter": "1000",
+            "playPause": {
+                "visible": true,
+                "enabled": true
+            },
+            "timeline": {
+                "visible": true,
+                "positionFormatString": ""
+            }
+        },
+        "currentLoadColor": {
+            "r": 197,
+            "g": 71,
+            "b": 71,
+            "a": 1
+        },
+        "userLoadColor": {
+            "r": 74,
+            "g": 144,
+            "b": 226,
+            "a": 1
+        },
+        "systemLoadColor": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 1
+        },
+        "usedMemoryColor": {
+            "r": 214,
+            "g": 74,
+            "b": 91,
+            "a": 0.98
+        },
+        "freeMemoryColor": {
+            "r": 74,
+            "g": 144,
+            "b": 226,
+            "a": 1
+        },
+        "totalMemoryColor": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 1
+        },
+        "diskReadColor": {
+            "r": 74,
+            "g": 144,
+            "b": 226,
+            "a": 1
+        },
+        "diskWriteColor": {
+            "r": 65,
+            "g": 117,
+            "b": 5,
+            "a": 1
+        },
+        "diskTotalColor": {
+            "r": 139,
+            "g": 87,
+            "b": 42,
+            "a": 1
+        }
+    }

@@ -10,4 +10,12 @@ mysql -u ivis --password="$MYSQL_PASSWORD" -e "CREATE database ivis;"
 cat > config/development.yaml <<EOT
 mysql:
   password: $MYSQL_PASSWORD
+
+www:
+  trustedPortIsHttps: false
+  sandboxPortIsHttps: false
+  apiPortIsHttps: false
+
+  trustedUrlBase: http://localhost:8443
+  sandboxUrlBase: http://localhost:8445
 EOT

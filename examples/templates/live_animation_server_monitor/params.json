@@ -1,0 +1,114 @@
+[
+    {
+        "id": "animation",
+        "label": "Animation configuration",
+        "type": "fieldset",
+        "cardinality": "1..1",
+        "children": [
+            {
+                "id": "pollRate",
+                "label": "Animation poll rate in ms",
+                "type": "number"
+            },
+            {
+                "id": "isPlaying",
+                "label": "Should play on load",
+                "type": "boolean"
+            },
+            {
+                "id": "intervalSpanBefore",
+                "label": "Shown history duration in ms",
+                "type": "number"
+            },
+            {
+                "id": "intervalSpanAfter",
+                "label": "Shown future duration in ms",
+                "type": "number"
+            },
+            {
+                "id": "playPause",
+                "label": "Play/Pause button",
+                "type": "fieldset",
+                "cardinality": "1..1",
+                "children": [
+                    {
+                        "id": "visible",
+                        "label": "Is visible?",
+                        "type": "boolean"
+                    },
+                    {
+                        "id": "enabled",
+                        "label": "Is enabled?",
+                        "type": "boolean"
+                    }
+                ]
+            },
+            {
+                "id": "timeline",
+                "label": "Timeline",
+                "type": "fieldset",
+                "cardinality": "1..1",
+                "children": [
+                    {
+                        "id": "visible",
+                        "label": "Is visible?",
+                        "type": "boolean"
+                    },
+                    {
+                        "id": "positionFormatString",
+                        "label":
+                            "Label format of current time and date",
+                        "help":
+"Format tokens can be found at momentjs.com/docs/#/displaying/format/",
+                        "type": "string"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "currentLoadColor",
+        "label": "Color of current CPU load",
+        "type": "color"
+    },
+    {
+        "id": "userLoadColor",
+        "label": "Color of user CPU load",
+        "type": "color"
+    },
+    {
+        "id": "systemLoadColor",
+        "label": "Color of system CPU load",
+        "type": "color"
+    },
+    {
+        "id": "usedMemoryColor",
+        "label": "Color of used memory",
+        "type": "color"
+    },
+    {
+        "id": "freeMemoryColor",
+        "label": "Color of free memory",
+        "type": "color"
+    },
+    {
+        "id": "totalMemoryColor",
+        "label": "Color of total memory",
+        "type": "color"
+    },
+    {
+        "id": "diskReadColor",
+        "label": "Color of disk read IO operations",
+        "type": "color"
+    },
+    {
+        "id": "diskWriteColor",
+        "label": "Color of disk write IO operations",
+        "type": "color"
+    },
+    {
+        "id": "diskTotalColor",
+        "label": "Color of total disk IO operations",
+        "type": "color"
+    }
+]

@@ -1,0 +1,247 @@
+{
+    "animationConfig": {
+        "initialStatus": {
+            "positionISO": "2020-02-01T00:00:00Z",
+            "playbackSpeedFactor": "604800"
+        },
+        "timeDomain": {
+            "from": "2020-02-20 00:00:00",
+            "to": "now"
+        },
+        "controls": {
+            "playPause": {
+                "visible": true,
+                "enabled": true
+            },
+            "stop": {
+                "visible": true,
+                "enabled": true
+            },
+            "jumpForward": {
+                "visible": true,
+                "enabled": true,
+                "jumpFactor": ""
+            },
+            "jumpBackward": {
+                "visible": true,
+                "enabled": true,
+                "jumpFactor": ""
+            },
+            "changeSpeed": {
+                "visible": true,
+                "enabled": true,
+                "steps": []
+            },
+            "timeline": {
+                "visible": true,
+                "enabled": true,
+                "positionFormatString": ""
+            }
+        }
+    },
+    "lineChart": {
+        "sigSets": [
+            {
+                "cid": "it",
+                "tsSigCid": "ts",
+                "signals": [
+                    {
+                        "label": "Italy negative",
+                        "color": {
+                            "r": 145,
+                            "g": 76,
+                            "b": 84,
+                            "a": 1
+                        },
+                        "cid": "total_negative"
+                    },
+                    {
+                        "label": "Italy positive",
+                        "color": {
+                            "r": 208,
+                            "g": 2,
+                            "b": 27,
+                            "a": 1
+                        },
+                        "cid": "total_confirmed"
+                    }
+                ]
+            },
+            {
+                "cid": "it_25",
+                "tsSigCid": "ts",
+                "signals": [
+                    {
+                        "label": "Lombardy negative",
+                        "color": {
+                            "r": 64,
+                            "g": 89,
+                            "b": 119,
+                            "a": 1
+                        },
+                        "cid": "total_negative"
+                    },
+                    {
+                        "label": "Lombardy positive",
+                        "color": {
+                            "r": 74,
+                            "g": 144,
+                            "b": 226,
+                            "a": 1
+                        },
+                        "cid": "total_confirmed"
+                    }
+                ]
+            },
+            {
+                "cid": "it_21",
+                "tsSigCid": "ts",
+                "signals": [
+                    {
+                        "label": "Piedmont negative",
+                        "color": {
+                            "r": 96,
+                            "g": 126,
+                            "b": 62,
+                            "a": 1
+                        },
+                        "cid": "total_negative"
+                    },
+                    {
+                        "label": "Piedmont positive",
+                        "color": {
+                            "r": 126,
+                            "g": 202,
+                            "b": 37,
+                            "a": 1
+                        },
+                        "cid": "total_confirmed"
+                    }
+                ]
+            }
+        ]
+    },
+    "pieChart": {
+        "sectors": [
+            {
+                "id": "negative",
+                "label": "Negative",
+                "color": {
+                    "r": 208,
+                    "g": 2,
+                    "b": 27,
+                    "a": 1
+                }
+            },
+            {
+                "id": "positive",
+                "label": "Positive",
+                "color": {
+                    "r": 74,
+                    "g": 144,
+                    "b": 226,
+                    "a": 1
+                }
+            }
+        ],
+        "dataSets": [
+            {
+                "name": "Italy",
+                "sigSetCid": "it",
+                "tsSigCid": "ts",
+                "sectors": [
+                    {
+                        "cid": "total_negative",
+                        "sectorId": "negative"
+                    },
+                    {
+                        "cid": "total_confirmed",
+                        "sectorId": "positive"
+                    }
+                ]
+            },
+            {
+                "name": "Lombardy",
+                "sigSetCid": "it_25",
+                "tsSigCid": "ts",
+                "sectors": [
+                    {
+                        "cid": "total_negative",
+                        "sectorId": "negative"
+                    },
+                    {
+                        "cid": "total_confirmed",
+                        "sectorId": "positive"
+                    }
+                ]
+            },
+            {
+                "name": "Piedmont",
+                "sigSetCid": "it_21",
+                "tsSigCid": "ts",
+                "sectors": [
+                    {
+                        "cid": "total_negative",
+                        "sectorId": "negative"
+                    },
+                    {
+                        "cid": "total_confirmed",
+                        "sectorId": "positive"
+                    }
+                ]
+            }
+        ]
+    },
+    "svgChart": {
+        "sigSets": [
+            {
+                "cid": "it",
+                "tsSigCid": "ts",
+                "signals": [
+                    {
+                        "label": "Number of tests in Italy",
+                        "color": {
+                            "r": 65,
+                            "g": 117,
+                            "b": 5,
+                            "a": 1
+                        },
+                        "cid": "total_tested"
+                    }
+                ]
+            },
+            {
+                "cid": "it_25",
+                "tsSigCid": "ts",
+                "signals": [
+                    {
+                        "label": "Number of tests in Lombardy",
+                        "color": {
+                            "r": 201,
+                            "g": 149,
+                            "b": 62,
+                            "a": 1
+                        },
+                        "cid": "total_tested"
+                    }
+                ]
+            },
+            {
+                "cid": "it_21",
+                "tsSigCid": "ts",
+                "signals": [
+                    {
+                        "label": "Number of tests in Piedmont",
+                        "color": {
+                            "r": 161,
+                            "g": 92,
+                            "b": 221,
+                            "a": 1
+                        },
+                        "cid": "total_tested"
+                    }
+                ]
+            }
+        ]
+    }
+}

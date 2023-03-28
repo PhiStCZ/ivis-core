@@ -1,0 +1,143 @@
+[
+    {
+        "id": "areachart",
+        "label": "Area chart configuration",
+        "type": "fieldset",
+        "cardinality": "1..1",
+        "children": [
+            {
+                "id": "sigSets",
+                "label": "Signal sets",
+                "type": "fieldset",
+                "cardinality": "1..n",
+                "children": [
+                    {
+                        "id": "cid",
+                        "label": "Signal Set",
+                        "type": "signalSet"
+                    },
+                    {
+                        "id": "tsSigCid",
+                        "label": "Timestamp signal",
+                        "type": "signal",
+                        "signalSetRef": "cid"
+                    },
+                    {
+                        "id": "signals",
+                        "label": "Signals",
+                        "type": "fieldset",
+                        "cardinality": "1..n",
+                        "children": [
+                            {
+                              "id": "label",
+                              "label": "Label",
+                              "type": "string"
+                            },
+                            {
+                              "id": "color",
+                              "label": "Color",
+                              "type": "color"
+                            },
+                            {
+                              "id": "cid",
+                              "label": "Signal",
+                              "type": "signal",
+                              "signalSetRef": "../../cid"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "barchart",
+        "label": "Bar chart configuration",
+        "type": "fieldset",
+        "cardinality": "1..1",
+        "children": [
+            {
+                "id": "domainLabel",
+                "label": "Domain label",
+                "type": "string"
+            },
+            {
+                "id": "codomainLabel",
+                "label": "Codomain label",
+                "type": "string"
+            },
+            {
+                "id": "valueFormatSpecifier",
+                "label": "Codomain value specifier",
+                "type": "string"
+            },
+            {
+                "id": "categories",
+                "label": "Categories",
+                "type": "fieldset",
+                "cardinality": "1..n",
+                "children": [
+                    {
+                        "id": "id",
+                        "label": "Category identifier",
+                        "type": "string"
+                    },
+                    {
+                        "id": "label",
+                        "label": "Category label",
+                        "type": "string"
+                    },
+                    {
+                        "id": "color",
+                        "label": "Category color",
+                        "type": "color"
+                    }
+                ]
+            },
+            {
+                "id": "dataSets",
+                "label": "Bar chart groups",
+                "type": "fieldset",
+                "cardinality": "1..n",
+                "children": [
+                    {
+                        "id": "name",
+                        "label": "Group name",
+                        "type": "string"
+                    },
+                    {
+                        "id": "sigSetCid",
+                        "help": "Must be unique among all groups.",
+                        "label": "Signal set",
+                        "type": "signalSet"
+                    },
+                    {
+                        "id": "tsSigCid",
+                        "label": "Timestamp signal",
+                        "type": "signal",
+                        "signalSetRef": "sigSetCid"
+                    },
+                    {
+                        "id": "categories",
+                        "label": "Categories in this group",
+                        "type": "fieldset",
+                        "cardinality": "1..n",
+                        "children": [
+                            {
+                                "id": "categoryId",
+                                "label": "Category identifier",
+                                "type": "string"
+                            },
+                            {
+                                "id": "cid",
+                                "label": "Signal",
+                                "type": "signal",
+                                "signalSetRef": "../../sigSetCid"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

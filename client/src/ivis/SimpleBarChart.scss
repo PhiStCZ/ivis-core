@@ -1,0 +1,23 @@
+.simpleBarChart {
+    width: 100%;
+    height: 100%;
+
+    %axisLabel {
+        font-weight: bold;
+        fill: black;
+    }
+
+    .x_axisLabel {
+        @extend %axisLabel;
+
+        text-anchor: end;
+    }
+
+    .y_axisLabel {
+        @extend %axisLabel;
+
+        dominant-baseline: hanging;
+        text-anchor: start;
+    }
+}
+

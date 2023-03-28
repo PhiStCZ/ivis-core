@@ -58,7 +58,7 @@ export function withAsyncErrorHandler(target, name, descriptor) {
 
     descriptor.value = async function () {
         try {
-            await fn.apply(this, arguments)
+            return await fn.apply(this, arguments);
         } catch (error) {
             handleError(this, error);
         }

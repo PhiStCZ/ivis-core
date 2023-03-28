@@ -14,13 +14,19 @@ const templates = require('./models/templates');
 const tasks = require('./models/tasks');
 const builder = require('./lib/builder');
 const taskHandler = require('./lib/task-handler');
+const alertsHandler = require('./lib/alerts-event-handler')
 const indexer = require('./lib/indexers/' + config.indexer);
 const appBuilder = require('./app-builder');
-const { AppType } = require('../shared/app');
+const {AppType} = require('../shared/app');
 const bluebird = require('bluebird');
 const savePdf = require('./lib/pdf-export');
 
 emCommonDefaults.setDefaults(em);
+
+if (config.examples.serverMonitorEnabled === true) {
+    const serverMonitorAnimation = require('../examples/animations/server-monitor').create();
+    em.set('animation.monitor', serverMonitorAnimation);
+}
 
 async function initAndStart() {
     function createServer(appType, appName, host, port, isHttps, certsConfig, callback) {
@@ -47,7 +53,7 @@ async function initAndStart() {
 
         server.on('listening', () => {
             const addr = server.address();
-            log.info('Express', `WWW server [${appName}] listening on HTTPS port ${addr.port}`);
+            log.info('Express', `WWW server [${appName}] listening on ${isHttps ? "HTTPS" : "HTTP"} port ${addr.port}`);
         });
 
         em.invoke('server.setup', server, app, appType);
@@ -69,6 +75,7 @@ async function initAndStart() {
     await builder.init();
     await indexer.init();
     await taskHandler.init();
+    await alertsHandler.init();
     await templates.compileAll();
     await tasks.compileAll();
 

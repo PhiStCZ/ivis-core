@@ -13,6 +13,7 @@ import developStyles from "./Develop.scss";
 import {ActionLink} from "../../lib/bootstrap-components";
 import IntegrationTabs from "./IntegrationTabs";
 import Files from "../../lib/files";
+import Versioning from "./Versioning";
 import {TaskType, TaskSource} from "../../../../shared/tasks";
 import {withComponentMixins} from "../../lib/decorator-helpers";
 import {withTranslation} from "../../lib/i18n";
@@ -288,6 +289,17 @@ export default class Develop extends Component {
                                              format="wide" readOnly={isReadOnly}/>
             }
         );
+
+        if (!isReadOnly) {
+            tabs.push(
+                {
+                    id: 'vcs',
+                    label: t('VCS'),
+                    getContent: () => <Versioning entity={this.props.entity} entityTypeId="task" entitySubTypeId="file"
+                                             managePermission="manageFiles"/>
+                }
+            )
+        }
 
         spec.tabs = tabs;
         this.taskTypes[type] = spec;

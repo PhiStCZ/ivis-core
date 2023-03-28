@@ -32,9 +32,12 @@ module.exports = {
                                 '@babel/preset-react'
                             ],
                             plugins: [
-                                ["@babel/plugin-proposal-decorators", { "legacy": true }],
-                                ["@babel/plugin-proposal-class-properties", { "loose" : true }],
-                                "@babel/plugin-proposal-function-bind"
+                                ["@babel/plugin-proposal-decorators", {"legacy": true}],
+                                ["@babel/plugin-proposal-class-properties", {"loose": true}],
+                                ["@babel/plugin-proposal-private-methods", {"loose": true}],
+                                ["@babel/plugin-proposal-private-property-in-object", { "loose": true }],
+                                "@babel/plugin-proposal-function-bind",
+                                "@babel/plugin-proposal-optional-chaining"
                             ]
                         }
                     }
@@ -42,7 +45,7 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                use: [ 'style-loader', 'css-loader' ]
+                use: ['style-loader', 'css-loader']
             },
             {
                 test: /\.(png|jpg|gif|woff2?)$/,
@@ -78,12 +81,12 @@ module.exports = {
                             localIdentName: '[path][name]__[local]--[hash:base64:5]'
                         }
                     },
-                    'sass-loader'
+                    'sass-loader',
                 ]
             },
             {
                 test: /\.(ttf|eot)$/,
-                use: [ 'file-loader' ]
+                use: ['file-loader']
             }
         ]
     },
@@ -99,6 +102,5 @@ module.exports = {
         ignored: 'node_modules/',
         poll: 1000
     },
-    resolve: {
-    }
+    resolve: {}
 };

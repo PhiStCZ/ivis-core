@@ -309,8 +309,8 @@ export class TimeInterval {
             intv._notifyChange('spec');
 
             return intv;
-        } 
-        
+        }
+
         return this;
     }
 
@@ -332,7 +332,7 @@ export class TimeInterval {
             intv._computeAbsolute();
             intv._notifyChange('spec');
         }
-        
+
         return this;
     }
 

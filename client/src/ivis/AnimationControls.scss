@@ -1,0 +1,143 @@
+@import "node_modules/@coreui/coreui/scss/variables";
+
+@import "node_modules/@coreui/coreui/scss/bootstrap/mixins";
+
+.label {
+    user-select: none;
+}
+
+.mediaButton {
+    @include button-variant($dark, $dark);
+    padding: map-get($spacers, 0) map-get($spacers, 1);
+
+    height: 100%;
+    min-width: 30px;
+
+    box-shadow: none;
+    color: $light;
+    font-size: 0.95em;
+
+    :global {
+        .fa, .fas {
+            font-size: 0.8em;
+        }
+    }
+
+    &:active, &:focus {
+        outline: none;
+        box-shadow: none !important;
+    }
+}
+
+.changeSpeedButton {
+    @extend .mediaButton;
+
+    border-top-left-radius: inherit;
+    border-bottom-left-radius: inherit;
+
+    .spacer {
+        margin: map-get($spacers, 0) map-get($spacers, 1);
+    }
+}
+.changeSpeedDropdown {}
+.changeSpeedMenu {
+    border-width: 0px;
+    min-width: auto;
+    width: 100%;
+
+    .changeSpeedMenuItem {
+        @extend .mediaButton;
+        text-align: right;
+        border-radius: 0px;
+
+        &:first-child {
+            border-top-right-radius: calc(#{map-get($spacers, 1)} - 1px);
+            border-top-left-radius: calc(#{map-get($spacers, 1)} - 1px);
+        }
+        &:last-child {
+            border-bottom-right-radius: calc(#{map-get($spacers, 1)} - 1px);
+            border-bottom-left-radius: calc(#{map-get($spacers, 1)} - 1px);
+        }
+    }
+}
+
+.mediaButtonGroup {
+    height: 100%;
+    width: 100%;
+
+    & > .mediaButton:not(:first-child),
+    & > .changeSpeedDropdown:not(:first-child) {
+        margin-left: 1px;
+
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+}
+
+.timeline {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    svg {
+        overflow: visible;
+    }
+
+    .axis {
+        stroke: $light;
+        stroke-width: 15px; //only px allowed (determines axis's bounding rect)
+        stroke-linecap: round;
+    }
+
+    .progressBar {
+        @extend .axis;
+
+        stroke: $primary;
+    }
+
+    .positionLabel {
+        @extend .label;
+
+        fill: $primary;
+        font-weight: bold;
+    }
+
+    .hoverPositionLabel {
+        @extend .positionLabel;
+
+        fill: $dark;
+    }
+
+    .pointer {
+        fill: $dark;
+    }
+
+    .tick {
+        stroke: $dark;
+        stroke-width: 3px;
+    }
+
+    .tickLabel {
+        @extend .label;
+
+        fill: $dark;
+    }
+}
+
+// Control layouts
+
+.onelineLayout {
+    @include make-container();
+
+    padding: map-get($spacers, 5) 0;
+
+    :global {
+        .row {
+            height: 25px;
+
+            [class^="col"] {
+                height: inherit;
+            }
+        }
+    }
+}

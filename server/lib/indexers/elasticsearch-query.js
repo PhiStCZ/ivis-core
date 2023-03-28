@@ -29,7 +29,9 @@ function getElsInterval(duration) {
     const units = ['ms', 's', 'm', 'h'];
     for (const unit of units) {
         if (duration.get(unit) !== 0) {
-            return duration.as(unit) + unit;
+            //Rounding needed as duration.as(<unit>) returns float.
+            //See the output of moment.duration('PT4.087').as('ms').
+            return Math.round(duration.as(unit)) + unit;
         }
     }
 
@@ -836,6 +838,7 @@ class QueryProcessor {
             size: 0,
             aggs: this.createElsAggs(query.aggs)
         };
+
 
         const elsResp = await executeElsQry(this.indexName, elsQry);
 

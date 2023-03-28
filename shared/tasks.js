@@ -66,6 +66,13 @@ const BuiltinTaskNames = {
     FLATTEN: "flatten",
 }
 
+const Permission = {
+    VIEW: 'view',
+    EDIT: 'edit',
+    DELETE: 'delete',
+    VIEW_SYSTEM_TASKS: 'viewSystemTasks' // global
+}
+
 module.exports = {
     TaskType,
     subtypesByType,
@@ -81,5 +88,6 @@ module.exports = {
     PYTHON_BUILTIN_PARAMS_FILE_NAME,
     WizardType,
     isBuiltinSource,
-    BuiltinTaskNames
+    BuiltinTaskNames,
+    Permission
 };

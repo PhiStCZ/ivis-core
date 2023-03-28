@@ -388,7 +388,7 @@ class Table extends Component {
     componentDidUpdate(prevProps, prevState) {
         if (this.props.data) {
             this.table.clear();
-            this.table.rows.add(this.props.data);
+            this.table.rows.add(this.props.data).draw();
         } else {
             // XXX: Changing URL changing from data to dataUrl is not implemented
             this.refresh();

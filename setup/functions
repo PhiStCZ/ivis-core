@@ -98,7 +98,7 @@ EOF
     fi
 
     installPrerequisities
-    installIvis http://localhost:8080 http://localhost:8081 0.0.0.0 false "${apiUsesClientCerts}" 
+    installIvis http://localhost:8080 http://localhost:8081 0.0.0.0 false "${apiUsesClientCerts}"
     installService
 
     echo
@@ -274,7 +274,7 @@ certs:
     mysql -u root -e "CREATE USER '$productId'@'localhost' IDENTIFIED BY '$mysqlPassword';"
     mysql -u root -e "GRANT ALL PRIVILEGES ON \`$productId\`.* TO '$productId'@'localhost';"
     mysql -u $productId --password="$mysqlPassword" -e "CREATE database \`$productId\`;"
-    
+
     # Setup installation configuration
     cat > server/config/production.yaml <<EOT
 $emailCnf

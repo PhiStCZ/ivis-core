@@ -36,4 +36,10 @@ export * from './SwimlaneChart';
 export * from './RangeContext';
 export * from './NanosecondsRangeSelector';
 export * from './dot_shapes';
+export * from './SimpleBarChart';
+export * from './AnimationCommon';
+export * from './LiveAnimation';
+export * from './RecordedAnimation';
+export * from './AnimationControls';
+
 export * from './common';

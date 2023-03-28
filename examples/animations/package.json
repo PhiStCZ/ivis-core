@@ -1,0 +1,14 @@
+{
+  "name": "ivis-core",
+  "version": "1.0.0",
+  "description": "Environment for examples.",
+  "directories": {
+    "example": ".."
+  },
+  "author": "Tomas Bures",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {
+    "systeminformation": "^4.27.10"
+  }
+}

@@ -124,6 +124,7 @@ export class LineChartBase extends Component {
 
     static propTypes = {
         config: PropTypes.object.isRequired,
+        data: PropTypes.object,
         contentComponent: PropTypes.func,
         contentRender: PropTypes.func,
         onClick: PropTypes.func,
@@ -740,6 +741,7 @@ export class LineChartBase extends Component {
         return (
             <TimeBasedChartBase
                 config={props.config}
+                data={props.data}
                 height={props.height}
                 margin={props.margin}
                 prepareData={this.boundPrepareData}

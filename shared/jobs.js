@@ -27,7 +27,8 @@ const HandlerMsgType = {
     DELETE_TASK: 4,
     SIGNAL_TRIGGER: 5,
     CREATE: 6,
-    INIT: 7
+    INIT: 7,
+    ACCESS_TOKEN: 8
 };
 Object.freeze(HandlerMsgType)
 

@@ -1,4 +1,7 @@
 # IVIS-CORE
+
+[![IVIS-CORE CI](https://github.com/smartarch/ivis-core/actions/workflows/node.js.yml/badge.svg)](https://github.com/smartarch/ivis-core/actions/workflows/node.js.yml)
+
 ## Introduction 
 IVIS-CORE project provides core components, and modules in order to develop and realize modern Web applications for data visualization, and analytics.
 

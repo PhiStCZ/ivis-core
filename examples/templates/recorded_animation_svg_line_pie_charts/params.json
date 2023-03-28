@@ -1,0 +1,380 @@
+[
+    {
+        "id": "animationConfig",
+        "label": "Animation configuration",
+        "type": "fieldset",
+        "cardinality": "1..1",
+        "children": [
+            {
+                "id": "initialStatus",
+                "label": "Initial state of animation",
+                "type": "fieldset",
+                "cardinality": "0..1",
+                "children": [
+                    {
+                        "id": "isPlaying",
+                        "label": "Playing on load",
+                        "type": "boolean"
+                    },
+                    {
+                        "id": "positionISO",
+                        "label": "Position on load in ISO 8601 format",
+                        "type": "string"
+                    },
+                    {
+                        "id": "playbackSpeedFactor",
+                        "label": "Playback speed factor on load",
+                        "type": "number"
+                    }
+                ]
+            },
+            {
+                "id": "timeDomain",
+                "label": "Time period to be played back",
+                "type": "fieldset",
+                "cardinality": "1..1",
+                "children": [
+                    {
+                        "id": "from",
+                        "label": "From",
+                        "type": "string",
+                        "help":
+                            "Only formats accepted by the TimeRangeSelector."
+                    },
+                    {
+                        "id": "to",
+                        "label": "To",
+                        "type": "string",
+                        "help":
+                            "Only formats accepted by the TimeRangeSelector."
+                    }
+                ]
+            },
+            {
+                "id": "controls",
+                "label": "Controls configuration",
+                "type": "fieldset",
+                "cardinality": "1..1",
+                "children": [
+                    {
+                        "id": "playPause",
+                        "label": "Play/Pause button",
+                        "type": "fieldset",
+                        "cardinality": "1..1",
+                        "children": [
+                            {
+                                "id": "visible",
+                                "label": "Is visible?",
+                                "type": "boolean"
+                            },
+                            {
+                                "id": "enabled",
+                                "label": "Is enabled?",
+                                "type": "boolean"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "stop",
+                        "label": "Stop button",
+                        "type": "fieldset",
+                        "cardinality": "1..1",
+                        "children": [
+                            {
+                                "id": "visible",
+                                "label": "Is visible?",
+                                "type": "boolean"
+                            },
+                            {
+                                "id": "enabled",
+                                "label": "Is enabled?",
+                                "type": "boolean"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "jumpForward",
+                        "label": "Jump forward button",
+                        "type": "fieldset",
+                        "cardinality": "1..1",
+                        "children": [
+                            {
+                                "id": "visible",
+                                "label": "Is visible?",
+                                "type": "boolean"
+                            },
+                            {
+                                "id": "enabled",
+                                "label": "Is enabled?",
+                                "type": "boolean"
+                            },
+                            {
+                                "id": "jumpFactor",
+                                "label": "Jump factor of played interval",
+                                "type": "number"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "jumpBackward",
+                        "label": "Jump backward button",
+                        "type": "fieldset",
+                        "cardinality": "1..1",
+                        "children": [
+                            {
+                                "id": "visible",
+                                "label": "Is visible?",
+                                "type": "boolean"
+                            },
+                            {
+                                "id": "enabled",
+                                "label": "Is enabled?",
+                                "type": "boolean"
+                            },
+                            {
+                                "id": "jumpFactor",
+                                "label": "Jump factor of played interval",
+                                "type": "number"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "changeSpeed",
+                        "label": "Change speed button",
+                        "type": "fieldset",
+                        "cardinality": "1..1",
+                        "children": [
+                            {
+                                "id": "visible",
+                                "label": "Is visible?",
+                                "type": "boolean"
+                            },
+                            {
+                                "id": "enabled",
+                                "label": "Is enabled?",
+                                "type": "boolean"
+                            },
+                            {
+                                "id": "steps",
+                                "label": "Possible speed factors",
+                                "type": "fieldset",
+                                "cardinality": "0..n",
+                                "children": [
+                                    {
+                                        "id": "step",
+                                        "label": "Speed factor",
+                                        "type": "number"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "timeline",
+                        "label": "Timeline",
+                        "type": "fieldset",
+                        "cardinality": "1..1",
+                        "children": [
+                            {
+                                "id": "visible",
+                                "label": "Is visible?",
+                                "type": "boolean"
+                            },
+                            {
+                                "id": "enabled",
+                                "label": "Is enabled?",
+                                "type": "boolean"
+                            },
+                            {
+                                "id": "positionFormatString",
+                                "label":
+                                    "Label format of current time and date",
+                                "help":
+"Possible tokens can be found at momentjs.com/docs/#/displaying/format/",
+                                "type": "string"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "lineChart",
+        "label": "Configuration of line chart",
+        "type": "fieldset",
+        "cardinality": "1..1",
+        "children": [
+            {
+                "id": "sigSets",
+                "label": "Signal sets",
+                "type": "fieldset",
+                "cardinality": "1..n",
+                "children": [
+                    {
+                        "id": "cid",
+                        "label": "Signal Set",
+                        "type": "signalSet"
+                    },
+                    {
+                        "id": "tsSigCid",
+                        "label": "Timestamp signal",
+                        "type": "signal",
+                        "signalSetRef": "cid"
+                    },
+                    {
+                        "id": "signals",
+                        "label": "Signals",
+                        "type": "fieldset",
+                        "cardinality": "1..n",
+                        "children": [
+                            {
+                              "id": "label",
+                              "label": "Label",
+                              "type": "string"
+                            },
+                            {
+                              "id": "color",
+                              "label": "Color",
+                              "type": "color"
+                            },
+                            {
+                              "id": "cid",
+                              "label": "Signal",
+                              "type": "signal",
+                              "signalSetRef": "../../cid"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "pieChart",
+        "label": "Configuration of pie charts",
+        "type": "fieldset",
+        "cardinality": "1..1",
+        "children": [
+            {
+                "id": "sectors",
+                "label": "Pie chart sectors",
+                "type": "fieldset",
+                "cardinality": "1..n",
+                "children": [
+                    {
+                        "id": "id",
+                        "label": "Sector identifier",
+                        "type": "string"
+                    },
+                    {
+                        "id": "label",
+                        "label": "Sector label",
+                        "type": "string"
+                    },
+                    {
+                        "id": "color",
+                        "label": "Sector color",
+                        "type": "color"
+                    }
+                ]
+            },
+            {
+                "id": "dataSets",
+                "label": "Pie chart contexts",
+                "type": "fieldset",
+                "cardinality": "1..n",
+                "children": [
+                    {
+                        "id": "name",
+                        "label": "Context name",
+                        "type": "string"
+                    },
+                    {
+                        "id": "sigSetCid",
+                        "help":
+                            "Must be unique among all pie chart contexts",
+                        "label": "Signal set",
+                        "type": "signalSet"
+                    },
+                    {
+                        "id": "tsSigCid",
+                        "label": "Timestamp signal",
+                        "type": "signal",
+                        "signalSetRef": "sigSetCid"
+                    },
+                    {
+                        "id": "sectors",
+                        "label": "Sectors",
+                        "type": "fieldset",
+                        "cardinality": "1..n",
+                        "children": [
+                            {
+                                "id": "cid",
+                                "label": "Signal for sector",
+                                "type": "signal",
+                                "signalSetRef": "../../sigSetCid"
+                            },
+                            {
+                                "id": "sectorId",
+                                "label": "Sector identifier",
+                                "type": "string"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "svgChart",
+        "label": "Configuration of SVG chart",
+        "type": "fieldset",
+        "cardinality": "1..1",
+        "children": [
+            {
+                "id": "sigSets",
+                "label": "Signal sets",
+                "type": "fieldset",
+                "cardinality": "1..n",
+                "children": [
+                    {
+                        "id": "cid",
+                        "label": "Signal Set",
+                        "type": "signalSet"
+                    },
+                    {
+                        "id": "tsSigCid",
+                        "label": "Timestamp signal",
+                        "type": "signal",
+                        "signalSetRef": "cid"
+                    },
+                    {
+                        "id": "signals",
+                        "label": "Signals",
+                        "type": "fieldset",
+                        "cardinality": "1..n",
+                        "children": [
+                            {
+                              "id": "label",
+                              "label": "Label",
+                              "type": "string"
+                            },
+                            {
+                              "id": "color",
+                              "label": "Color",
+                              "type": "color"
+                            },
+                            {
+                              "id": "cid",
+                              "label": "Signal",
+                              "type": "signal",
+                              "signalSetRef": "../../cid"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

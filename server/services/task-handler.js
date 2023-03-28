@@ -13,14 +13,11 @@ const {resolveAbs, getFieldsetPrefix} = require('../../shared/param-types-helper
 const {getSignalEntitySpec} = require('../lib/signal-helpers')
 const {getSignalSetEntitySpec} = require('../lib/signal-set-helpers')
 const {createRunManager} = require('./jobs/run-manager');
-const {getRestrictedAccessToken, getAccessToken} = require('../models/users');
-const contextHelpers = require('../lib/context-helpers');
-
 
 const es = require('../lib/elasticsearch');
 const {TYPE_JOBS, INDEX_JOBS, STATE_FIELD} = require('../lib/task-handler').esConstants
 
-const {getFailEventType, getStopEventType} = require('../lib/task-events');
+const {getFailEventType, getStopEventType, EventTypes} = require('../lib/task-events');
 
 const LOG_ID = 'Task-handler';
 
@@ -44,6 +41,8 @@ handlers.set(TaskType.PYTHON, pythonHandler);
 em.invoke('services.task-handler.installHandlers', handlers);
 
 const events = require('events');
+const users = require("../models/users");
+const contextHelpers = require("../lib/context-helpers");
 const emitter = new events.EventEmitter();
 
 
@@ -66,11 +65,15 @@ function emitToCoreSystem(eventType, data) {
 
 /**
  * The incoming messages logistic.
+ * @param {{type: number, spec: Object}} msg
  */
 async function handleMsg(msg) {
     if (msg) {
         try {
             switch (msg.type) {
+                case HandlerMsgType.ACCESS_TOKEN:
+                    emitter.emit(`token-${msg.spec.runId}`, msg);
+                    break;
                 case HandlerMsgType.RUN:
                     await handleRunMsg(msg);
                     break;
@@ -804,6 +807,32 @@ async function loadJobState(id) {
     }
 }
 
+
+async function requestJobRestrictedAccessToken(jobId, runId) {
+    let token = null;
+    try {
+        const tokenPromise = new Promise((resolved, rejected) => {
+            emitter.once(`token-${runId}`, (msg) => {
+                resolved(msg);
+            })
+        })
+
+        emitToCoreSystem(EventTypes.ACCESS_TOKEN, {
+            jobId,
+            runId,
+            accessToken: null
+        });
+
+        const msg = await tokenPromise;
+        token = msg.spec.accessToken;
+
+    } catch (e) {
+        log.error(e);
+    }
+
+    return token
+}
+
 /**
  * Handle run task.
  * @returns {Promise<void>}
@@ -833,7 +862,7 @@ async function handleRun(workEntry) {
                 params: spec.params || {},
                 entities: spec.entities,
                 owned: spec.owned,
-                accessToken: spec.accessToken || null,
+                accessToken: await requestJobRestrictedAccessToken(jobId, runId),
                 es: {
                     host: `${config.elasticsearch.host}`,
                     port: `${config.elasticsearch.port}`
@@ -850,6 +879,7 @@ async function handleRun(workEntry) {
         // TODO move interaction, as running and stopping, to run manager
         // there is a lot of overhead for running a job so it will serve as intermediate layer for handlers
         const runManager = createRunManager(jobId, runId, {
+            config: runConfig,
             onRunFail,
             onRunSuccess: () => {
                 inProcessMsgs.delete(runId);

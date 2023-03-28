@@ -45,6 +45,7 @@ export class OnOffAreaChart extends Component {
 
     static propTypes = {
         config: PropTypes.object.isRequired,
+        data: PropTypes.object,
         contentComponent: PropTypes.func,
         contentRender: PropTypes.func,
         onClick: PropTypes.func,
@@ -145,6 +146,7 @@ export class OnOffAreaChart extends Component {
             <LineChartBase
                 config={props.config}
                 height={props.height}
+                data={props.data}
                 margin={props.margin}
                 signalAggs={['max']}
                 lineAgg="max"

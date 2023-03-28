@@ -87,6 +87,12 @@ const entityTypes = {
         permissionsTable: 'permissions_signal_set',
         clientLink: ({id}) => `/settings/signal-sets/${id}`
     },
+    alert: {
+        entitiesTable: 'alerts',
+        sharesTable: 'shares_alert',
+        permissionsTable: 'permissions_alert',
+        clientLink: ({id}) => `/settings/alerts/${id}`
+    },
     user: {
         entitiesTable: 'users',
         clientLink: ({id}) => `/settings/users/${id}`
