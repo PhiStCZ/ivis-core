@@ -74,7 +74,9 @@ export class LineChart extends Component {
         data: PropTypes.object,
         contentComponent: PropTypes.func,
         contentRender: PropTypes.func,
-        onClick: PropTypes.func, // FIXME: should this be passed to the LineChartBase?
+        onSelect: PropTypes.func,
+        onDeselect: PropTypes.func,
+        onClick: PropTypes.func,
         height: PropTypes.number,
         margin: PropTypes.object,
         withTooltip: PropTypes.bool,
@@ -86,6 +88,7 @@ export class LineChart extends Component {
         tooltipContentComponent: PropTypes.func,
         tooltipContentRender: PropTypes.func,
         tooltipExtraProps: PropTypes.object,
+        getTooltipExtraState: PropTypes.func,
         getSignalValuesForDefaultTooltip: PropTypes.func,
 
         getExtraQueries: PropTypes.func,
@@ -206,9 +209,13 @@ export class LineChart extends Component {
                 zoomUpdateReloadInterval={props.zoomUpdateReloadInterval}
                 contentComponent={props.contentComponent}
                 contentRender={props.contentRender}
+                onSelect={props.onSelect}
+                onDeselect={props.onDeselect}
+                onClick={props.onClick}
                 tooltipContentComponent={this.props.tooltipContentComponent}
                 tooltipContentRender={this.props.tooltipContentRender}
                 tooltipExtraProps={this.props.tooltipExtraProps}
+                getTooltipExtraState={this.props.getTooltipExtraState}
                 lineVisibility={this.props.lineVisibility}
                 lineWidth={this.props.lineWidth}
                 controlTimeIntervalChartWidth={this.props.controlTimeIntervalChartWidth}

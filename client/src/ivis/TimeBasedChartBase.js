@@ -228,6 +228,7 @@ export class TimeBasedChartBase extends Component {
         xAxisType: PropTypes.oneOf([XAxisType.DATETIME, XAxisType.NUMBER]).isRequired, // data type on the x-axis
 
         tooltipExtraProps: PropTypes.object,
+        getTooltipExtraState: PropTypes.func,
 
         minimumIntervalMs: PropTypes.number,
 
@@ -658,6 +659,11 @@ export class TimeBasedChartBase extends Component {
                     getSignalValues={this.props.getSignalValuesForDefaultTooltip} {...props}/>;
             }
 
+            let tooltipExtraState = {};
+            if (this.props.getTooltipExtraState) {
+                tooltipExtraState = this.props.getTooltipExtraState();
+            }
+
             return (
                 <svg id="cnt" ref={node => {
                     this.containerNode = node;
@@ -717,6 +723,7 @@ export class TimeBasedChartBase extends Component {
                         mousePosition={this.state.mousePosition}
                         selection={this.state.selection}
                         {...tooltipExtraProps}
+                        {...tooltipExtraState}
                     />}
 
                     {content}

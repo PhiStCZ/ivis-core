@@ -127,6 +127,8 @@ export class LineChartBase extends Component {
         data: PropTypes.object,
         contentComponent: PropTypes.func,
         contentRender: PropTypes.func,
+        onSelect: PropTypes.func,
+        onDeselect: PropTypes.func,
         onClick: PropTypes.func,
         height: PropTypes.number,
         margin: PropTypes.object,
@@ -139,6 +141,7 @@ export class LineChartBase extends Component {
         tooltipContentComponent: PropTypes.func,
         tooltipContentRender: PropTypes.func,
         tooltipExtraProps: PropTypes.object,
+        getTooltipExtraState: PropTypes.func,
 
         signalAggs: PropTypes.array.isRequired,
         lineAgg: PropTypes.string.isRequired,
@@ -519,6 +522,10 @@ export class LineChartBase extends Component {
 
             mousePosition = {x: containerPos[0], y: containerPos[1]};
 
+            if (this.props.onSelect) {
+                this.props.onSelect(self, selection, signalSetsData, baseState, abs, xScale, yScales, points, lineVisibility);
+            }
+
             base.setState({
                 selection,
                 mousePosition
@@ -548,6 +555,10 @@ export class LineChartBase extends Component {
                         }
                     }
                 }
+            }
+
+            if (this.props.onDeselect) {
+                this.props.onDeselect(self, selection, signalSetsData, baseState, abs, xScale, yScales, points, lineVisibility);
             }
 
             if (selection) {
@@ -759,6 +770,7 @@ export class LineChartBase extends Component {
                 tooltipContentComponent={this.props.tooltipContentComponent}
                 tooltipContentRender={this.props.tooltipContentRender}
                 tooltipExtraProps={this.props.tooltipExtraProps}
+                getTooltipExtraState={this.props.getTooltipExtraState}
                 getSignalValuesForDefaultTooltip={this.props.getSignalValuesForDefaultTooltip}
                 controlTimeIntervalChartWidth={this.props.controlTimeIntervalChartWidth}
                 loadingOverlayColor={this.props.loadingOverlayColor}
