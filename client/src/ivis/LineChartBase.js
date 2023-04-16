@@ -522,8 +522,8 @@ export class LineChartBase extends Component {
 
             mousePosition = {x: containerPos[0], y: containerPos[1]};
 
-            if (this.props.onSelect) {
-                this.props.onSelect(self, selection, signalSetsData, baseState, abs, xScale, yScales, points, lineVisibility);
+            if (self.props.onSelect) {
+                selection = self.props.onSelect(self, selection, signalSetsData, baseState, abs, xScale, yScales, points, lineVisibility);
             }
 
             base.setState({
@@ -557,8 +557,8 @@ export class LineChartBase extends Component {
                 }
             }
 
-            if (this.props.onDeselect) {
-                this.props.onDeselect(self, selection, signalSetsData, baseState, abs, xScale, yScales, points, lineVisibility);
+            if (self.props.onDeselect) {
+                self.props.onDeselect(self, selection, signalSetsData, baseState, abs, xScale, yScales, points, lineVisibility);
             }
 
             if (selection) {
