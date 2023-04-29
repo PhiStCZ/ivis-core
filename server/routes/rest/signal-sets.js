@@ -1,11 +1,11 @@
 'use strict';
 
 const passport = require('../../lib/passport');
-const moment = require('moment');
 const signalSets = require('../../models/signal-sets');
 const signalSetsAggregations = require('../../models/signal-set-aggregations');
 const panels = require('../../models/panels');
 const templates = require('../../models/templates');
+const builtinTemplates = require('../../models/builtin-templates');
 const jobs = require('../../models/jobs');
 const users = require('../../models/users');
 const contextHelpers = require('../../lib/context-helpers');
@@ -13,6 +13,7 @@ const base64url = require('base64-url');
 
 const router = require('../../lib/router-async').create();
 const {castToInteger} = require('../../lib/helpers');
+const { throwPermissionDenied } = require('../../models/shares');
 
 function getSignalsPermissions(allowedSignalsMap) {
     const signalSetsPermissions = {};
@@ -118,6 +119,26 @@ users.registerRestrictedAccessTokenMethod('template', async ({templateId, params
         ret.permissions.signalSet = signalSetsPermissions;
         ret.permissions.signal = signalsPermissions;
     }
+
+    return ret;
+});
+
+users.registerRestrictedAccessTokenMethod('builtin_template', async ({builtinTemplateId, params}) => {
+    const builtinTemplate = builtinTemplates.list()[builtinTemplateId];
+    if (!builtinTemplate) {
+        throwPermissionDenied();
+    }
+
+    const ret = {
+        permissions: {} // builtin templates don't need any server data
+    };
+
+    const allowedSignalsMap = await signalSets.getAllowedSignals(builtinTemplate.params, params);
+
+    const {signalSetsPermissions, signalsPermissions} = getSignalsPermissions(allowedSignalsMap);
+
+    ret.permissions.signalSet = signalSetsPermissions;
+    ret.permissions.signal = signalsPermissions;
 
     return ret;
 });

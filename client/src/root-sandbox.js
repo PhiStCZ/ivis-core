@@ -4,6 +4,7 @@ import './lib/public-path';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import em from './lib/extension-manager';
 import {TranslationRoot} from './lib/i18n';
 
 import {Section} from './lib/page-sandbox';
@@ -18,7 +19,7 @@ parentRPC.init();
 
 const getStructure = t => {
 
-    return {
+    const structure = {
         children: {
             panel: {
                 panelRender: props =>{
@@ -64,6 +65,10 @@ const getStructure = t => {
             }
         }
     };
+
+    em.invoke('client.installSandboxRoutes', structure, t);
+
+    return structure;
 };
 
 ReactDOM.render(

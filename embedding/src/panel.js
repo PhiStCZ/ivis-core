@@ -12,16 +12,14 @@ export function embedPanel(domElementId, ivisSandboxUrlBase, panelId, accessToke
     embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks);
 }
 
-/***
- *
+/**
  * @param domElementId
  * @param ivisSandboxUrlBase
  * @param templateId
  * @param config With possible properties: {name, description, params}
  * @param accessToken
- * @param options
- * @param callback
- * s
+ * @param optionsStr
+ * @param callbacks
  */
 export function embedTemplate(domElementId, ivisSandboxUrlBase, templateId, config, accessToken, optionsStr, callbacks) {
     const entityParams = {
@@ -32,6 +30,27 @@ export function embedTemplate(domElementId, ivisSandboxUrlBase, templateId, conf
 
     const options = JSON.parse(optionsStr);
     embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks);
+}
+
+/**
+ * @param domElementId
+ * @param ivisSandboxUrlBase
+ * @param builtinTemplateId
+ * @param config With possible properties: {name, description, params}
+ * @param accessToken
+ * @param path to the builtin template
+ * @param optionsStr
+ * @param callbacks
+ */
+export function embedBuiltinTemplate(domElementId, ivisSandboxUrlBase, builtinTemplateId, config, accessToken, path, optionsStr, callbacks) {
+    const entityParams = {
+        type: 'builtin_template',
+        id: builtinTemplateId,
+        config: config
+    };
+
+    const options = JSON.parse(optionsStr);
+    embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks, path);
 }
 
 function restCall(method, url, data, callback) {
@@ -49,7 +68,7 @@ function restCall(method, url, data, callback) {
     xhttp.send(data ? JSON.stringify(data) : null);
 }
 
-function embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks) {
+function embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks, path = null) {
 
     function getAnonymousSandboxUrl(path) {
         return ivisSandboxUrlBase + 'anonymous/' + (path || '');
@@ -89,14 +108,14 @@ function embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken
                 contentNodeIsLoaded = true;
 
                 let panel;
-                if (type === 'template') {
+                if (type === 'template' || type === 'builtin_template') {
                     panel = {
                         "id": VIRTUAL_PANEL_ID,
                         "name": entityParams.config.name || "",
                         "description": entityParams.config.description || "",
                         "workspace": VIRTUAL_WORKSPACE_ID,
-                        "template": id,
-                        "builtin_template": null,
+                        "template":         type === 'template'         ? id : null,
+                        "builtin_template": type === 'builtin_template' ? id : null,
                         "params": entityParams.config.params || {},
                         "namespace": entity.namespace,
                         "order": null,
@@ -139,10 +158,11 @@ function embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken
 
         window.addEventListener('message', receiveMessage, false);
 
-        let path = 'panel';
-
+        if (!path) {
+            path = 'panel';
+        }
         if (options && options.theme) {
-            path = `panel?theme=${options.theme}`;
+            path += `?theme=${options.theme}`;
         }
 
         const contentNode = document.createElement('iframe');
