@@ -35,22 +35,17 @@ export function embedTemplate(domElementId, ivisSandboxUrlBase, templateId, conf
 /**
  * @param domElementId
  * @param ivisSandboxUrlBase
- * @param builtinTemplateId
- * @param config With possible properties: {name, description, params}
  * @param accessToken
  * @param path to the builtin template
+ * @param params of the builtin template
  * @param optionsStr
  * @param callbacks
  */
-export function embedBuiltinTemplate(domElementId, ivisSandboxUrlBase, builtinTemplateId, config, accessToken, path, optionsStr, callbacks) {
-    const entityParams = {
-        type: 'builtin_template',
-        id: builtinTemplateId,
-        config: config
-    };
-
+export function embedBuiltinTemplate(domElementId, ivisSandboxUrlBase, accessToken, path, params, optionsStr, callbacks) {
+    scheduleRefreshAccessToken(ivisSandboxUrlBase, accessToken);
+    const contentProps = {params};
     const options = JSON.parse(optionsStr);
-    embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks, path);
+    embedContent(domElementId, ivisSandboxUrlBase, accessToken, path, contentProps, options, callbacks);
 }
 
 function restCall(method, url, data, callback) {
@@ -68,110 +63,111 @@ function restCall(method, url, data, callback) {
     xhttp.send(data ? JSON.stringify(data) : null);
 }
 
-function embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks, path = null) {
+/**
+ * @param urlBase sandbox url base
+ * @param path url path
+ * @param accessToken leave empty for anonymous sandbox url
+ */
+function getSandboxUrl(urlBase, path = '', accessToken = 'anonymous') {
+    return urlBase + accessToken + '/' + path;
+}
 
-    function getAnonymousSandboxUrl(path) {
-        return ivisSandboxUrlBase + 'anonymous/' + (path || '');
-    }
+function scheduleRefreshAccessToken(urlBase, token) {
+    setTimeout(() => restCall(
+        'PUT',
+        getSandboxUrl(urlBase, 'rest/embedded-entity-renew-restricted-access-token', token),
+        {token},
+        () => scheduleRefreshAccessToken(urlBase, token)
+    ), 30 * 1000);
+}
 
-    function getSandboxUrl(path) {
-        return ivisSandboxUrlBase + accessToken + '/' + (path || '');
-    }
+function getVirtualPanel(templateParams, templateEntity) {
+    return {
+        'id': VIRTUAL_PANEL_ID,
+        'name': templateParams.config.name || '',
+        'description': templateParams.config.description || '',
+        'workspace': VIRTUAL_WORKSPACE_ID,
+        'template': templateParams.id,
+        'builtin_template': null,
+        'params': templateParams.config.params || {},
+        'namespace': templateEntity.namespace,
+        'order': null,
+        'templateParams': templateEntity.settings.params,
+        'templateElevatedAccess': templateEntity.elevated_access,
+        'permissions': [
+            'edit',
+            'view'
+        ],
+        'orderBefore': 'none'
+    };
+}
 
+function embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks) {
     const {type, id} = entityParams;
 
-    let refreshAccessTokenTimeout = null;
-    const scheduleRefreshAccessToken = () => {
-        refreshAccessTokenTimeout = setTimeout(() => {
-            restCall('PUT', getSandboxUrl('rest/embedded-entity-renew-restricted-access-token'), {token: accessToken}, () => {
-                scheduleRefreshAccessToken();
-            });
-        }, 30 * 1000);
-    };
-    scheduleRefreshAccessToken();
-
+    scheduleRefreshAccessToken(ivisSandboxUrlBase, accessToken);
 
     restCall('GET', getSandboxUrl(`rest/${type}s/${id}`), null, entity => {
-        let contentNodeIsLoaded = false;
-
-        const sendMessage = (type, data) => {
-            if (contentNodeIsLoaded) { // This is to avoid errors "common.js:45744 Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('http://localhost:8081') does not match the recipient window's origin ('http://localhost:3000')"
-                contentNode.contentWindow.postMessage({type, data}, getSandboxUrl());
-            }
-        };
-
-        const receiveMessage = evt => {
-            const msg = evt.data;
-
-            if (msg.type === 'initNeeded') {
-                // It seems that sometime the message that the content node does not arrive. However if the content root notifies us, we just proceed
-                contentNodeIsLoaded = true;
-
-                let panel;
-                if (type === 'template' || type === 'builtin_template') {
-                    panel = {
-                        "id": VIRTUAL_PANEL_ID,
-                        "name": entityParams.config.name || "",
-                        "description": entityParams.config.description || "",
-                        "workspace": VIRTUAL_WORKSPACE_ID,
-                        "template":         type === 'template'         ? id : null,
-                        "builtin_template": type === 'builtin_template' ? id : null,
-                        "params": entityParams.config.params || {},
-                        "namespace": entity.namespace,
-                        "order": null,
-                        "templateParams": entity.settings.params,
-                        "templateElevatedAccess": entity.elevated_access,
-                        "permissions": [
-                            "edit",
-                            "view"
-                        ],
-                        "orderBefore": 'none'
-                    };
-                } else {
-                    panel = entity;
-                }
-
-                const contentProps = {
-                    panel: panel
-                };
-
-                sendMessage('init', {accessToken, contentProps});
-
-            } else if (msg.type === 'rpcRequest') {
-                const method = msg.data.method;
-                const params = msg.data.params;
-
-                let ret;
-
-                if (method === 'navigateTo') {
-                    if (callbacks && callbacks.navigateTo) {
-                        callbacks.navigateTo(params.path);
-                    }
-                }
-
-                sendMessage('rpcResponse', {msgId: msg.data.msgId, ret});
-
-            } else if (msg.type === 'clientHeight') {
-                contentNode.height = msg.data;
-            }
-        };
-
-        window.addEventListener('message', receiveMessage, false);
-
-        if (!path) {
-            path = 'panel';
-        }
-        if (options && options.theme) {
-            path += `?theme=${options.theme}`;
+        const contentProps = {};
+        if (type === 'template') {
+            contentProps.panel = getVirtualPanel(entityParams, entity);
+        } else {
+            contentProps.panel = entity;
         }
 
-        const contentNode = document.createElement('iframe');
-        contentNode.src = getAnonymousSandboxUrl(path);
-        contentNode.style.border = '0px none';
-        contentNode.style.width = '100%';
-        contentNode.style.overflow = 'hidden';
-        contentNode.onload = () => contentNodeIsLoaded = true;
-
-        document.getElementById(domElementId).appendChild(contentNode);
+        embedContent(domElementId, ivisSandboxUrlBase, accessToken, 'panel', contentProps, options, callbacks);
     });
+}
+
+
+function embedContent(domElementId, ivisSandboxUrlBase, accessToken, path, contentProps, options, callbacks) {
+
+    const contentNode = document.createElement('iframe');
+    let contentNodeIsLoaded = false;
+
+    const sendMessage = (type, data) => {
+        if (contentNodeIsLoaded) { // This is to avoid errors "common.js:45744 Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('http://localhost:8081') does not match the recipient window's origin ('http://localhost:3000')"
+            contentNode.contentWindow.postMessage({type, data}, getSandboxUrl(ivisSandboxUrlBase, null, accessToken));
+        }
+    };
+
+    const receiveMessage = evt => {
+        const msg = evt.data;
+
+        if (msg.type === 'initNeeded') {
+            // It seems that sometime the message that the content node does not arrive. However if the content root notifies us, we just proceed
+            contentNodeIsLoaded = true;
+            sendMessage('init', {accessToken, contentProps});
+
+        } else if (msg.type === 'rpcRequest') {
+            const {method, params} = msg.data;
+
+            let ret;
+
+            if (method === 'navigateTo') {
+                if (callbacks && callbacks.navigateTo) {
+                    callbacks.navigateTo(params.path);
+                }
+            }
+
+            sendMessage('rpcResponse', {msgId: msg.data.msgId, ret});
+
+        } else if (msg.type === 'clientHeight') {
+            contentNode.height = msg.data;
+        }
+    };
+
+    window.addEventListener('message', receiveMessage, false);
+
+    if (options && options.theme) {
+        path += `?theme=${options.theme}`;
+    }
+
+    contentNode.src = getSandboxUrl(ivisSandboxUrlBase, path);
+    contentNode.style.border = '0px none';
+    contentNode.style.width = '100%';
+    contentNode.style.overflow = 'hidden';
+    contentNode.onload = () => contentNodeIsLoaded = true;
+
+    document.getElementById(domElementId).appendChild(contentNode);
 }
