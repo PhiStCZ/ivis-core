@@ -7,7 +7,7 @@ export function embedPanel(domElementId, ivisSandboxUrlBase, panelId, accessToke
         id: panelId
     };
 
-    const options = JSON.parse(optionsStr);
+    const options = optionsStr ? JSON.parse(optionsStr) : null;
 
     embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks);
 }
@@ -28,7 +28,7 @@ export function embedTemplate(domElementId, ivisSandboxUrlBase, templateId, conf
         config: config
     };
 
-    const options = JSON.parse(optionsStr);
+    const options = optionsStr ? JSON.parse(optionsStr) : null;
     embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks);
 }
 
@@ -43,8 +43,12 @@ export function embedTemplate(domElementId, ivisSandboxUrlBase, templateId, conf
  */
 export function embedBuiltinTemplate(domElementId, ivisSandboxUrlBase, accessToken, path, params, optionsStr, callbacks) {
     scheduleRefreshAccessToken(ivisSandboxUrlBase, accessToken);
-    const contentProps = {params};
-    const options = JSON.parse(optionsStr);
+
+    const contentProps = {
+        params,
+        panel: getVirtualPanel({ config: { params } }, { settings: { params: {} } }) // FIXME: this is just a temporary solution to make panelConfig work
+    };
+    const options = optionsStr ? JSON.parse(optionsStr) : null;
     embedContent(domElementId, ivisSandboxUrlBase, accessToken, path, contentProps, options, callbacks);
 }
 
