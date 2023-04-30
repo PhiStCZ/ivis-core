@@ -87,6 +87,7 @@ async function initAndStart() {
 
     log.info('Service', 'All services started');
     appBuilder.setReady();
+    em.invokeAsync('app.ready');
 }
 
 initAndStart().catch(err => {
