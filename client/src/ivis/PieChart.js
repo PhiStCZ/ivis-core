@@ -69,7 +69,8 @@ export class StaticPieChart extends Component {
         legendWidth: PropTypes.number,
         legendHeight: PropTypes.number,
         legendPosition: PropTypes.number,
-        legendRowClass: PropTypes.string
+        legendRowClass: PropTypes.string,
+        centerMessage: PropTypes.string
     }
 
     static defaultProps = {
@@ -169,7 +170,7 @@ export class StaticPieChart extends Component {
         if (total === 0) {
             this.msgSelection.text('No data.');
         } else {
-            this.msgSelection.text(null);
+            this.msgSelection.text(this.props.centerMessage || null);
         }
 
         const pieGen = d3Shape.pie()
