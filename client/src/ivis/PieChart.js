@@ -66,6 +66,7 @@ export class StaticPieChart extends Component {
         colors: PropTypes.arrayOf(PropType_d3Color_Required()),
         arcWidth: PropTypes.number,
         drawPercentageLabels: PropTypes.bool,
+        drawValueLabels: PropTypes.bool,
         legendWidth: PropTypes.number,
         legendHeight: PropTypes.number,
         legendPosition: PropTypes.number,
@@ -198,7 +199,7 @@ export class StaticPieChart extends Component {
         arcs.exit().remove();
 
         const labels = this.labelsSelection.selectAll('text').data(pieGen(this.props.config.arcs));
-        if (this.props.drawPercentageLabels) {
+        if (this.props.drawPercentageLabels || this.props.drawValueLabels) {
             labels.enter().append('text')
                 .merge(labels)
                 .attr('transform', d => `translate(${arcGen.centroid(d)})`)
@@ -208,7 +209,8 @@ export class StaticPieChart extends Component {
                 .attr('fill', d => this.props.getLabelColor(d.data.color))
                 .text(d => {
                     const ratio = Math.floor(d.data.value * 100 / total);
-                    return ratio > 5 ? `${ratio}%` : '';
+                    if (ratio <= 5) return '';
+                    return this.props.drawPercentageLabels ? `${ratio}%` : d.data.value;
                 })
         }
         labels.exit().remove();
