@@ -97,6 +97,7 @@ export class StaticPieChart extends Component {
         colors: d3Scheme.schemeCategory10,
         arcWidth: 60,
         drawPercentageLabels: true,
+        drawValueLabels: false,
     }
 
     componentDidMount() {
@@ -208,9 +209,14 @@ export class StaticPieChart extends Component {
                 .attr('class', styles.label)
                 .attr('fill', d => this.props.getLabelColor(d.data.color))
                 .text(d => {
-                    const ratio = Math.floor(d.data.value * 100 / total);
-                    if (ratio <= 5) return '';
-                    return this.props.drawPercentageLabels ? `${ratio}%` : d.data.value;
+                    const value = d.data.value;
+                    const ratio = Math.floor(value * 100 / total);
+                    if (value == 0 || ratio <= 5) {
+                        return '';
+                    } else if (this.props.drawValueLabels && this.props.drawPercentageLabels) {
+                        return `${value} (${ratio}%)`;
+                    }
+                    return this.props.drawPercentageLabels ? `${ratio}%` : value;
                 })
         }
         labels.exit().remove();
