@@ -9,7 +9,7 @@ export function embedPanel(domElementId, ivisSandboxUrlBase, panelId, accessToke
 
     const options = optionsStr ? JSON.parse(optionsStr) : null;
 
-    embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks);
+    return embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks);
 }
 
 /**
@@ -20,7 +20,8 @@ export function embedPanel(domElementId, ivisSandboxUrlBase, panelId, accessToke
  * @param accessToken
  * @param optionsStr
  * @param callbacks
- */
+ * @returns embed controls (call the stop() method when embedding is over)
+*/
 export function embedTemplate(domElementId, ivisSandboxUrlBase, templateId, config, accessToken, optionsStr, callbacks) {
     const entityParams = {
         type: 'template',
@@ -29,7 +30,7 @@ export function embedTemplate(domElementId, ivisSandboxUrlBase, templateId, conf
     };
 
     const options = optionsStr ? JSON.parse(optionsStr) : null;
-    embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks);
+    return embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks);
 }
 
 /**
@@ -40,9 +41,10 @@ export function embedTemplate(domElementId, ivisSandboxUrlBase, templateId, conf
  * @param params of the builtin template
  * @param optionsStr
  * @param callbacks
+ * @returns embed controls (call the stop() method when embedding is over)
  */
 export function embedBuiltinTemplate(domElementId, ivisSandboxUrlBase, accessToken, path, params, optionsStr, callbacks) {
-    scheduleRefreshAccessToken(ivisSandboxUrlBase, accessToken);
+    const stop = scheduleRefreshAccessToken(ivisSandboxUrlBase, accessToken);
 
     const contentProps = {
         params,
@@ -50,6 +52,7 @@ export function embedBuiltinTemplate(domElementId, ivisSandboxUrlBase, accessTok
     };
     const options = optionsStr ? JSON.parse(optionsStr) : null;
     embedContent(domElementId, ivisSandboxUrlBase, accessToken, path, contentProps, options, callbacks);
+    return {stop};
 }
 
 function restCall(method, url, data, callback) {
@@ -76,13 +79,21 @@ function getSandboxUrl(urlBase, path = '', accessToken = 'anonymous') {
     return urlBase + accessToken + '/' + path;
 }
 
+/** Schedules a periodic token refresh; returns a function which stops the auto-refresh. */
 function scheduleRefreshAccessToken(urlBase, token) {
+    let keepRefreshing = true;
     setTimeout(() => restCall(
         'PUT',
         getSandboxUrl(urlBase, 'rest/embedded-entity-renew-restricted-access-token', token),
         {token},
-        () => scheduleRefreshAccessToken(urlBase, token)
+        () => {
+            if (keepRefreshing) {
+                scheduleRefreshAccessToken(urlBase, token)
+            }
+        }
     ), 30 * 1000);
+
+    return () => keepRefreshing = false;
 }
 
 function getVirtualPanel(templateParams, templateEntity) {
@@ -109,7 +120,7 @@ function getVirtualPanel(templateParams, templateEntity) {
 function embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken, options, callbacks) {
     const {type, id} = entityParams;
 
-    scheduleRefreshAccessToken(ivisSandboxUrlBase, accessToken);
+    const stop = scheduleRefreshAccessToken(ivisSandboxUrlBase, accessToken);
 
     restCall('GET', getSandboxUrl(`rest/${type}s/${id}`), null, entity => {
         const contentProps = {};
@@ -121,21 +132,33 @@ function embedEntity(domElementId, ivisSandboxUrlBase, entityParams, accessToken
 
         embedContent(domElementId, ivisSandboxUrlBase, accessToken, 'panel', contentProps, options, callbacks);
     });
+
+    return {stop};
 }
 
 
 function embedContent(domElementId, ivisSandboxUrlBase, accessToken, path, contentProps, options, callbacks) {
-
+    const sendId = domElementId;
     const contentNode = document.createElement('iframe');
     let contentNodeIsLoaded = false;
 
     const sendMessage = (type, data) => {
-        if (contentNodeIsLoaded) { // This is to avoid errors "common.js:45744 Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('http://localhost:8081') does not match the recipient window's origin ('http://localhost:3000')"
-            contentNode.contentWindow.postMessage({type, data}, getSandboxUrl(ivisSandboxUrlBase, null, accessToken));
+        if (!contentNodeIsLoaded) {
+            // This is to avoid errors "common.js:45744 Failed to execute 'postMessage' on
+            // 'DOMWindow': The target origin provided ('http://localhost:8081') does not match
+            // the recipient window's origin ('http://localhost:3000')"
+            return;
         }
+
+        const data = {type, data, sendId};
+        contentNode.contentWindow.postMessage(data, getSandboxUrl(ivisSandboxUrlBase, null, accessToken));
     };
 
     const receiveMessage = evt => {
+        if (evt.sendId != sendId) {
+            return;
+        }
+
         const msg = evt.data;
 
         if (msg.type === 'initNeeded') {
@@ -163,8 +186,9 @@ function embedContent(domElementId, ivisSandboxUrlBase, accessToken, path, conte
 
     window.addEventListener('message', receiveMessage, false);
 
+    path += `?sendId=${sendId}`;
     if (options && options.theme) {
-        path += `?theme=${options.theme}`;
+        path += `&theme=${options.theme}`;
     }
 
     contentNode.src = getSandboxUrl(ivisSandboxUrlBase, path);

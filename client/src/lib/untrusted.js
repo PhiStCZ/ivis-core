@@ -210,6 +210,8 @@ export class UntrustedContentRoot extends Component {
         this.periodicTimeoutId = 0;
 
         this.clientHeight = 0;
+
+        this.sendId = new URLSearchParams(window.location.search).get('sendId');
     }
 
     static propTypes = {
@@ -228,6 +230,10 @@ export class UntrustedContentRoot extends Component {
 
 
     async receiveMessage(evt) {
+        if (this.sendId && evt.sendId !== this.sendId) {
+            return;
+        }
+
         const msg = evt.data;
 
         if (msg.type === 'initAvailable') {
@@ -246,7 +252,7 @@ export class UntrustedContentRoot extends Component {
     }
 
     sendMessage(type, data) {
-        window.parent.postMessage({type, data}, '*');
+        window.parent.postMessage({type, data, sendId: this.sendId}, '*');
     }
 
     componentDidMount() {
