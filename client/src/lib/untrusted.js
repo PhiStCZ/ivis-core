@@ -230,11 +230,11 @@ export class UntrustedContentRoot extends Component {
 
 
     async receiveMessage(evt) {
-        if (this.sendId && evt.sendId !== this.sendId) {
+        const msg = evt.data;
+
+        if (this.sendId && msg.sendId !== this.sendId) {
             return;
         }
-
-        const msg = evt.data;
 
         if (msg.type === 'initAvailable') {
             this.sendMessage('initNeeded');

@@ -82,17 +82,21 @@ function getSandboxUrl(urlBase, path = '', accessToken = 'anonymous') {
 /** Schedules a periodic token refresh; returns a function which stops the auto-refresh. */
 function scheduleRefreshAccessToken(urlBase, token) {
     let keepRefreshing = true;
-    setTimeout(() => restCall(
-        'PUT',
-        getSandboxUrl(urlBase, 'rest/embedded-entity-renew-restricted-access-token', token),
-        {token},
-        () => {
-            if (keepRefreshing) {
-                scheduleRefreshAccessToken(urlBase, token)
-            }
-        }
-    ), 30 * 1000);
 
+    function innerRefresh() {
+        setTimeout(() => restCall(
+            'PUT',
+            getSandboxUrl(urlBase, 'rest/embedded-entity-renew-restricted-access-token', token),
+            {token},
+            function() {
+                if (keepRefreshing) {
+                    innerRefresh();
+                }
+            }
+        ), 30 * 1000);
+    }
+
+    innerRefresh();
     return () => keepRefreshing = false;
 }
 
@@ -150,16 +154,16 @@ function embedContent(domElementId, ivisSandboxUrlBase, accessToken, path, conte
             return;
         }
 
-        const data = {type, data, sendId};
-        contentNode.contentWindow.postMessage(data, getSandboxUrl(ivisSandboxUrlBase, null, accessToken));
+        const message = {type, data, sendId};
+        contentNode.contentWindow.postMessage(message, getSandboxUrl(ivisSandboxUrlBase, null, accessToken));
     };
 
     const receiveMessage = evt => {
-        if (evt.sendId != sendId) {
+        const msg = evt.data;
+
+        if (msg.sendId !== sendId) {
             return;
         }
-
-        const msg = evt.data;
 
         if (msg.type === 'initNeeded') {
             // It seems that sometime the message that the content node does not arrive. However if the content root notifies us, we just proceed
