@@ -27,16 +27,13 @@ module.exports.loggedIn = (req, res, next) => {
 
 module.exports.authBySSLCertOrToken = (req, res, next) => {
     const accessToken = req.get('access-token') || req.query.access_token;
-    const globalAccessToken = req.get('global-access-token') || req.query.global_access_token;
 
-    if (globalAccessToken) {
-        let globalAccessCheck = { token: globalAccessToken, accept: false };
-        em.invoke('app.validateGlobalAccess', globalAccessCheck);
-        if(globalAccessCheck.accept) {
-            nodeifyPromise((async() => {
-                req.user = await users.getById(contextHelpers.getAdminContext(), getAdminId());
-            })(), next);
-        }
+    let globalAccessCheck = { req, accept: false };
+    em.invoke('app.validateGlobalAccess', globalAccessCheck);
+    if (globalAccessCheck.accept) {
+        nodeifyPromise((async() => {
+            req.user = await users.getById(contextHelpers.getAdminContext(), getAdminId());
+        })(), next);
 
     } else if (accessToken) {
         nodeifyPromise((async () => {
