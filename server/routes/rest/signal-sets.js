@@ -129,16 +129,16 @@ users.registerRestrictedAccessTokenMethod('builtin_template', async ({builtinTem
         throwPermissionDenied();
     }
 
-    const ret = {
-        permissions: {} // builtin templates don't need any server data
-    };
-
     const allowedSignalsMap = await signalSets.getAllowedSignals(builtinTemplate.params, params);
 
     const {signalSetsPermissions, signalsPermissions} = getSignalsPermissions(allowedSignalsMap);
 
-    ret.permissions.signalSet = signalSetsPermissions;
-    ret.permissions.signal = signalsPermissions;
+    const ret = {
+        permissions: {
+            signalSet: signalSetsPermissions,
+            signal: signalsPermissions,
+        }
+    };
 
     return ret;
 });

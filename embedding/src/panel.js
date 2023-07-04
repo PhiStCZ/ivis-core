@@ -48,7 +48,9 @@ export function embedBuiltinTemplate(domElementId, ivisSandboxUrlBase, accessTok
 
     const contentProps = {
         params,
-        panel: getVirtualPanel({ config: { params } }, { settings: { params: {} } }) // FIXME: this is just a temporary solution to make panelConfig work
+
+        // this makes panelConfig work, but may need more details in the future
+        panel: getVirtualPanel({ config: { params } }, { settings: { params: {} } })
     };
     const options = optionsStr ? JSON.parse(optionsStr) : null;
     embedContent(domElementId, ivisSandboxUrlBase, accessToken, path, contentProps, options, callbacks);
