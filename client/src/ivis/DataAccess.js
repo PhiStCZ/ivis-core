@@ -817,7 +817,8 @@ class TimeSeriesDataProvider extends Component {
     static propTypes = {
         fetchDataFun: PropTypes.func.isRequired,
         renderFun: PropTypes.func.isRequired,
-        loadingRenderFun: PropTypes.func
+        loadingRenderFun: PropTypes.func,
+        processDataFun: PropTypes.func,
     }
 
     componentDidUpdate(prevProps) {
@@ -834,7 +835,10 @@ class TimeSeriesDataProvider extends Component {
     @withAsyncErrorHandler
     async fetchData() {
         try {
-            const signalSetsData = await this.props.fetchDataFun(this.dataAccessSession, this.getIntervalAbsolute());
+            let signalSetsData = await this.props.fetchDataFun(this.dataAccessSession, this.getIntervalAbsolute());
+            if (this.props.processDataFun) {
+                signalSetsData = await this.props.processDataFun(signalSetsData);
+            }
 
             if (signalSetsData) {
                 this.setState({
@@ -865,7 +869,8 @@ export class TimeSeriesProvider extends Component {
         intervalFun: PropTypes.func,
         signalSets: PropTypes.object.isRequired,
         renderFun: PropTypes.func.isRequired,
-        loadingRenderFun: PropTypes.func
+        loadingRenderFun: PropTypes.func,
+        processDataFun: PropTypes.func,
     }
 
     static defaultProps = {
@@ -878,6 +883,7 @@ export class TimeSeriesProvider extends Component {
                 fetchDataFun={async (dataAccessSession, intervalAbsolute) => await dataAccessSession.getLatestTimeSeries(this.props.signalSets, this.props.intervalFun(intervalAbsolute))}
                 renderFun={this.props.renderFun}
                 loadingRenderFun={this.props.loadingRenderFun}
+                processDataFun={this.props.processDataFun}
             />
         );
     }
@@ -888,7 +894,8 @@ export class TimeSeriesSummaryProvider extends Component {
         intervalFun: PropTypes.func,
         signalSets: PropTypes.object.isRequired,
         renderFun: PropTypes.func.isRequired,
-        loadingRenderFun: PropTypes.func
+        loadingRenderFun: PropTypes.func,
+        processDataFun: PropTypes.func,
     }
 
     static defaultProps = {
@@ -901,6 +908,7 @@ export class TimeSeriesSummaryProvider extends Component {
                 fetchDataFun={async (dataAccessSession, intervalAbsolute) => await dataAccessSession.getLatestTimeSeriesSummary(this.props.signalSets, this.props.intervalFun(intervalAbsolute))}
                 renderFun={this.props.renderFun}
                 loadingRenderFun={this.props.loadingRenderFun}
+                processDataFun={this.props.processDataFun}
             />
         );
     }
@@ -918,7 +926,8 @@ export class TimeSeriesPointProvider extends Component {
         tsSpec: PropTypes.object,
         signalSets: PropTypes.object.isRequired,
         renderFun: PropTypes.func.isRequired,
-        loadingRenderFun: PropTypes.func
+        loadingRenderFun: PropTypes.func,
+        processDataFun: PropTypes.func,
     }
 
     static defaultProps = {
@@ -931,6 +940,7 @@ export class TimeSeriesPointProvider extends Component {
                 fetchDataFun={async (dataAccessSession, intervalAbsolute) => await dataAccessSession.getLatestTimeSeriesPoint(this.props.signalSets, this.props.tsSpec.getTs(intervalAbsolute), this.props.tsSpec.pointType)}
                 renderFun={this.props.renderFun}
                 loadingRenderFun={this.props.loadingRenderFun}
+                processDataFun={this.props.processDataFun}
             />
         );
     }
@@ -942,6 +952,7 @@ export class TimeSeriesLimitedPointsProvider extends Component {
         limit: PropTypes.number.isRequired,
         renderFun: PropTypes.func.isRequired,
         loadingRenderFun: PropTypes.func,
+        processDataFun: PropTypes.func,
         tsSpec: PropTypes.object,
     }
 
@@ -1001,6 +1012,7 @@ export class TimeSeriesLimitedPointsProvider extends Component {
                 fetchDataFun={::this.fetchDataFun}
                 renderFun={this.props.renderFun}
                 loadingRenderFun={this.props.loadingRenderFun}
+                processDataFun={this.props.processDataFun}
             />
         );
     }
