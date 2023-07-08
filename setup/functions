@@ -11,8 +11,8 @@ case "$hostType" in
         redisService=redis
         apacheConf="/etc/httpd/conf.d/${productId}.conf"
         apacheLogsPath="logs"
-        userId=root
-        groupId=root
+        _userId=root
+        _groupId=root
         hostType=centos8-aws
 
         if hash firewall-cmd 2>/dev/null; then
@@ -25,8 +25,8 @@ case "$hostType" in
         redisService=redis
         apacheConf="/etc/httpd/conf.d/${productId}.conf"
         apacheLogsPath="logs"
-        userId=root
-        groupId=root
+        _userId=root
+        _groupId=root
 
         if hash firewall-cmd 2>/dev/null; then
             firewallCmdExists=true
@@ -38,8 +38,8 @@ case "$hostType" in
         redisService=redis
         apacheConf="/etc/httpd/conf.d/${productId}.conf"
         apacheLogsPath="logs"
-        userId=centos
-        groupId=centos
+        _userId=centos
+        _groupId=centos
         hostType=centos7-aws
 
         if hash firewall-cmd 2>/dev/null; then
@@ -52,8 +52,8 @@ case "$hostType" in
         redisService=redis
         apacheConf="/etc/httpd/conf.d/${productId}.conf"
         apacheLogsPath="logs"
-        userId=root
-        groupId=root
+        _userId=root
+        _groupId=root
 
         if hash firewall-cmd 2>/dev/null; then
             firewallCmdExists=true
@@ -65,8 +65,8 @@ case "$hostType" in
         redisService=redis-server
         apacheConf="/etc/apache2/conf-available/${productId}.conf"
         apacheLogsPath="/var/log/apache2"
-        userId=ubuntu
-        groupId=ubuntu
+        _userId=ubuntu
+        _groupId=ubuntu
 
         if hash ufw 2>/dev/null; then
             firewallCmdExists=true
@@ -74,7 +74,8 @@ case "$hostType" in
         ;;
 esac
 
-
+userId=${userId:-$_userId}
+groupId=${groupId:-$_groupId}
 
 
 function performInstallLocal {
